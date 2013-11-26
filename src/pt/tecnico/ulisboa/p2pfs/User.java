@@ -50,16 +50,16 @@ public class User {
     	 * >> Chave:chave Valor:valor
     	 * */ 
 		
-//    	User usr = new User();
-//		LocalFsManager lfsm = new LocalFsManager();
-//		lfsm.mounts();
-    	User usr = new User(Integer.parseInt(args[0]));
-        if (args.length == 3) {
-            usr.store(args[1], args[2]);
-        }
-        if (args.length == 2) {
-            System.out.println("Key:" + args[1] + " Value:" + usr.get(args[1]));
-        }
+    	User usr = new User();
+		LocalFsManager lfsm = new LocalFsManager();
+		lfsm.mounts();
+//    	User usr = new User(Integer.parseInt(args[0]));
+//        if (args.length == 3) {
+//            usr.store(args[1], args[2]);
+//        }
+//        if (args.length == 2) {
+//            System.out.println("Key:" + args[1] + " Value:" + usr.get(args[1]));
+//        }
 		
     }
 }
