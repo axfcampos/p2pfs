@@ -2,19 +2,19 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk-amd64"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/TomP2P-4.4-sources.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/TomP2P-4.4-javadoc.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/TomP2P-4.4.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/lib/slf4j-api-1.6.4.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/lib/netty-3.5.3.Patched.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/lib/logback-core-1.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/lib/logback-classic-1.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/lib/junit-4.10.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/lib/json-simple-1.1.1.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/lib/jdbm-3.0-alpha.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/TomP2P-4.4/lib/hamcrest-core-1.1.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4/TomP2P-4.4-sources.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4-javadoc.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4.jar"/>
+	<classpathentry kind="lib" path="../lib/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="../lib/netty-3.5.3.Patched.jar"/>
+	<classpathentry kind="lib" path="../lib/logback-core-1.0.1.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4/lib/logback-classic-1.0.1.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4/lib/junit-4.10.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4/lib/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4/lib/jdbm-3.0-alpha.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4/lib/hamcrest-core-1.1.jar"/>
 	<classpathentry kind="lib" path="/fuse/bin" sourcepath="/fuse/fuse-jna/src"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/jna-4.0.0.jar"/>
-	<classpathentry kind="lib" path="/home/alex/workspace/jna-platform-4.0.0.jar"/>
+	<classpathentry kind="lib" path="../jna-4.0.0.jar"/>
+	<classpathentry kind="lib" path="../jna-platform-4.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
