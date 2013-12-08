@@ -81,6 +81,10 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 				filler.add(p.name);
 			}
 		}
+		
+		public int size() {
+			return contents.size();
+		}
 	}
 
 	private final class MemoryFile extends MemoryPath {
@@ -206,6 +210,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		this.kademlia = new Kademlia(username);
 		
 		kademlia.getMyFileData();
+		
 		
 	}
 
@@ -388,7 +393,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			System.exit(1);
 		}
 		System.out.println(args[0]);
-		new P2PFilesystem(args[1]).log(true).mount(args[2]);
+		new P2PFilesystem(args[0]).log(true).mount(args[1]);
 	}
 
 }

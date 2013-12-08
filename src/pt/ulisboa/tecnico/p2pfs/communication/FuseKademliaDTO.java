@@ -1,4 +1,4 @@
-package pt.tecnico.ulisboa.p2pfs.communication;
+package pt.ulisboa.tecnico.p2pfs.communication;
 
 import net.tomp2p.storage.Data;
 
