@@ -10,9 +10,10 @@ import net.tomp2p.futures.FutureDiscover;
 import net.tomp2p.p2p.Peer;
 import net.tomp2p.p2p.PeerMaker;
 import net.tomp2p.peers.Number160;
-import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.peers.ShortString;
 import net.tomp2p.storage.Data;
+
+import pt.ulisboa.tecnico.p2pfs.fuse.MemoryDirectory;
 
 public class Kademlia {
 	
@@ -26,7 +27,7 @@ public class Kademlia {
 	
 	Peer me;
 	
-	Data myFileData;
+	MemoryDirectory myFileData;
 	
 	public Kademlia(String username) {
 		
@@ -38,16 +39,21 @@ public class Kademlia {
 		
 		} catch (IOException e) {
 			
-			System.out.println("Failed initiating peer");
+			System.out.println("Failed initiating peer : " + e.toString());
+			System.exit(0);
+			
+		} catch (ClassNotFoundException e) {
+
+			System.out.println("Failed initiating peer : " + e.toString());
 			System.exit(0);
 		}
 	}
 	
-	public Data getMyFileData() {
+	public MemoryDirectory getMyFileData() {
 		return myFileData;
 	}	
 	
-	private void initPeer() throws IOException {
+	private void initPeer() throws IOException, ClassNotFoundException {
 		
 		
 		me = new PeerMaker(new Number160(new ShortString(username))).setPorts(PORT)
@@ -62,17 +68,26 @@ public class Kademlia {
 		futureBootstrap.awaitUninterruptibly();
 		
 		FutureDHT futureDHT = getMyFile("/");
-        myFileData = futureDHT.getData();
+        Data data = futureDHT.getData();
         
-        if(myFileData == null)
+        if(data == null) {
+        	
         	createMyFile("/");
+        } else {
+        	
+        	myFileData = (MemoryDirectory) data.getObject();
+        }
 	}
 	
-	private void createMyFile(String path) throws IOException {
+	private void createMyFile(String path) throws IOException, ClassNotFoundException {
 		
-		 FutureDHT futureDHT = me.put(new Number160(new ShortString(username + "-file-" + path)))
-				 .setRefreshSeconds(2).setData(new Data("")).start();
-		 futureDHT.awaitUninterruptibly();
+		Data data = new Data(new MemoryDirectory(path));
+		
+		FutureDHT futureDHT = me.put(new Number160(new ShortString(username + "-file-" + path)))
+				 .setRefreshSeconds(2).setData(data).start();
+		futureDHT.awaitUninterruptibly();
+		
+		myFileData = (MemoryDirectory) data.getObject();
 	        
 	}
 	
