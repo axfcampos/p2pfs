@@ -1,7 +1,12 @@
 package pt.ulisboa.tecnico.p2pfs.fuse;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaEntryDto;
 import pt.ulisboa.tecnico.p2pfs.kademlia.Kademlia;
 
 import net.fusejna.DirectoryFiller;
@@ -18,7 +23,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 	
 	/* Based on examples */
 
-	private final MemoryDirectory rootDirectory;
+	private MemoryDirectory rootDirectory = new MemoryDirectory();
 
 	public P2PFilesystem(String username) {
 		// Sprinkle some files around
@@ -26,25 +31,46 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		
 		this.kademlia = new Kademlia(username);
 		
-		rootDirectory = (MemoryDirectory) kademlia.getMyFileData();
+		rootDirectory.contents = memoryPathFromFuseKadmliaDto((FuseKademliaDto) kademlia.getMyFileData());
 		
-		rootDirectory.add(new MemoryFile("Sample file.txt", "Hello there, feel free to look around.\n"));
-		rootDirectory.add(new MemoryDirectory("Sample directory"));
-		final MemoryDirectory dirWithFiles = new MemoryDirectory("Directory with files");
-		rootDirectory.add(dirWithFiles);
-		dirWithFiles.add(new MemoryFile("hello.txt", "This is some sample text.\n"));
-		dirWithFiles.add(new MemoryFile("hello again.txt", "This another file with text in it! Oh my!\n"));
-		final MemoryDirectory nestedDirectory = new MemoryDirectory("Sample nested directory");
-		dirWithFiles.add(nestedDirectory);
-		nestedDirectory.add(new MemoryFile("So deep.txt", "Man, I'm like, so deep in this here file structure.\n"));
+	}
+	
+	private List<MemoryPath> memoryPathFromFuseKadmliaDto(FuseKademliaDto dto) {
+		
+		List<MemoryPath> dir = new ArrayList<MemoryPath>();
+		
+		for (FuseKademliaEntryDto entry : dto.getContents())
+			if (entry.getType() == FuseKademliaEntryDto.DIR)
+				dir.add(new MemoryDirectory(entry.getName()));
+			else
+				dir.add(new MemoryFile(entry.getName()));
+		
+		return dir;
 		
 	}
 
 	@Override
 	public int access(final String path, final int access)
 	{
+		MemoryDirectory dir = (MemoryDirectory) rootDirectory.find(path);
 		
-		return 0;
+		if (dir.size() != 0)
+			return 0;
+		
+		try {
+			
+			dir.contents = memoryPathFromFuseKadmliaDto(kademlia.getDirectoryObject(path));
+		
+		} catch (ClassNotFoundException e) {
+			
+			return -ErrorCodes.EEXIST();
+			
+		} catch (IOException e) {
+			
+			return -ErrorCodes.EEXIST();
+		}
+		
+		return 1;
 	}
 
 	@Override

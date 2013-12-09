@@ -12,7 +12,7 @@ public final class MemoryDirectory extends MemoryPath implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	final List<MemoryPath> contents = new ArrayList<MemoryPath>();
+	public List<MemoryPath> contents = new ArrayList<MemoryPath>();
 
 	public MemoryDirectory(){
 		super();

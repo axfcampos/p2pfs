@@ -13,6 +13,7 @@ import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.ShortString;
 import net.tomp2p.storage.Data;
 
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
 import pt.ulisboa.tecnico.p2pfs.fuse.MemoryDirectory;
 
 public class Kademlia {
@@ -21,13 +22,13 @@ public class Kademlia {
 	
 	static Number160 ID = new Number160(1);
 	
-	static String HOST = "95.69.3.251";
+	static String HOST = "188.140.5.88";
 	
 	String username;
 	
 	Peer me;
 	
-	MemoryDirectory myFileData;
+	FuseKademliaDto myFileData;
 	
 	public Kademlia(String username) {
 		
@@ -49,7 +50,7 @@ public class Kademlia {
 		}
 	}
 	
-	public MemoryDirectory getMyFileData() {
+	public FuseKademliaDto getMyFileData() {
 		return myFileData;
 	}	
 	
@@ -67,36 +68,43 @@ public class Kademlia {
 		FutureBootstrap futureBootstrap = me.bootstrap().setInetAddress( address ).setPorts( 9101 ).start();
 		futureBootstrap.awaitUninterruptibly();
 		
+		
+		
 		FutureDHT futureDHT = getMyFile("/");
         Data data = futureDHT.getData();
         
         if(data == null) {
-        	
         	createMyFile("/");
         } else {
-        	
-        	myFileData = (MemoryDirectory) data.getObject();
+        	myFileData = (FuseKademliaDto) data.getObject();
         }
 	}
 	
 	private void createMyFile(String path) throws IOException, ClassNotFoundException {
 		
-		Data data = new Data(new MemoryDirectory(path));
+		Data data = new Data(new FuseKademliaDto());
 		
 		FutureDHT futureDHT = me.put(new Number160(new ShortString(username + "-file-" + path)))
 				 .setRefreshSeconds(2).setData(data).start();
 		futureDHT.awaitUninterruptibly();
 		
-		myFileData = (MemoryDirectory) data.getObject();
+		myFileData = (FuseKademliaDto) data.getObject();
 	        
 	}
 	
 	private FutureDHT getMyFile(String path) {
+		Number160 location = new Number160(new ShortString(username + "-file-" + path));
 		
-		FutureDHT futureDHT = me.get(new Number160(new ShortString(username + "-file-" + path))).start();
+		FutureDHT futureDHT = me.get(location).start();
         futureDHT.awaitUninterruptibly();
         
         return futureDHT;
+	}
+	
+	public FuseKademliaDto getDirectoryObject(String path) throws ClassNotFoundException, IOException {
+		
+		return (FuseKademliaDto) getMyFile(path).getData().getObject();
+		
 	}
 
 
