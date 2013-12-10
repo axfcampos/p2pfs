@@ -1,4 +1,4 @@
-package pt.tecnico.ulisboa.p2pfs;
+package pt.ulisboa.tecnico.p2pfs;
 
 import java.io.IOException;
 import java.util.NavigableMap;

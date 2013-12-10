@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import pt.ulisboa.tecnico.p2pfs.MyPeerMaker;
+import pt.ulisboa.tecnico.p2pfs.MyStorageMemory;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
 import net.tomp2p.futures.FutureDHT;
@@ -107,6 +109,7 @@ public class User {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	
     	System.out.println(((MyStorageMemory) mpm.getStorage()).getNumberOfRootMetaFilesImResponsibleFor()); //da 0
     	System.out.println(((MyStorageMemory) mpm.getStorage()).getNumStoredFiles()); //da 1.0
     	System.out.println(((MyStorageMemory) mpm.getStorage()).getNumMBFiles()); //da algo

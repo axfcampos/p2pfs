@@ -8,11 +8,12 @@ import net.tomp2p.futures.FutureBootstrap;
 import net.tomp2p.futures.FutureDHT;
 import net.tomp2p.futures.FutureDiscover;
 import net.tomp2p.p2p.Peer;
-import net.tomp2p.p2p.PeerMaker;
 import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.ShortString;
 import net.tomp2p.storage.Data;
 
+import pt.ulisboa.tecnico.p2pfs.MyPeerMaker;
+import pt.ulisboa.tecnico.p2pfs.MyStorageMemory;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaEntryDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
@@ -28,6 +29,8 @@ public class Kademlia {
 	String username;
 	
 	Peer me;
+	
+	MyStorageMemory myStorageMemory;
 	
 	FuseKademliaDto myFileData;
 	
@@ -57,9 +60,12 @@ public class Kademlia {
 	
 	private void initPeer() throws IOException, ClassNotFoundException {
 		
+		MyPeerMaker peerMaker = new MyPeerMaker(new Number160(new ShortString(username)));
 		
-		me = new PeerMaker(new Number160(new ShortString(username))).setPorts(PORT)
+		
+		me = peerMaker.setPorts(PORT)
 				.setEnableIndirectReplication(true).setEnableTracker(true).makeAndListen();
+		myStorageMemory = (MyStorageMemory) peerMaker.getStorage();
 		
 		InetAddress address = Inet4Address.getByName(HOST);
 		
@@ -104,8 +110,6 @@ public class Kademlia {
 	}
 	
 	public FuseKademliaDto getDirectoryObject(String path) throws ClassNotFoundException, IOException {
-		
-		System.out.println("DIR OBJ: " + path);
 		
 		FuseKademliaDto dto = (FuseKademliaDto) getDirFile(path).getData().getObject();
 		
@@ -162,14 +166,10 @@ public class Kademlia {
 
 	public void removeDir(String path) throws ClassNotFoundException, IOException {
 		
-		System.out.println("TOTAL: " + path);
-		
 		FutureDHT futureDHT = me.remove(Number160.createHash(username + "-file-" + path)).start();
 		futureDHT.awaitUninterruptibly();
 		
 		FuseKademliaDto dto;
-		
-		System.out.println("PAI: "+ path.substring(0, path.lastIndexOf("/")));
 		
 		if(path.substring(0, path.lastIndexOf("/")+1).equals("/")) {
 			dto = getDirectoryObject("/");

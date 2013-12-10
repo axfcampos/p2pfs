@@ -105,8 +105,6 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 				
 				String name = splitter[splitter.length - 1];
 				
-				System.out.println("PATH: " + path + ":" + path.substring(0, path.indexOf("/")));
-				
 				kademlia.createFile(path);
 				if(path.substring(0, path.lastIndexOf("/") + 1).equals("/"))
 					kademlia.updateDirectory(path.substring(0, path.lastIndexOf('/') + 1)
@@ -370,11 +368,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 	
 	
 	public static void main(final String... args) throws FuseException {
-		if (args.length != 2) {
-			System.err.println("Usage: P2PFilesystem <username> <mountpoint>");
-			System.exit(1);
-		}
-		System.out.println(args[0]);
+		
 		new P2PFilesystem(args[0]).log(true).mount(args[1]);
 	}
 
