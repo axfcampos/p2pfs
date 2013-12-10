@@ -75,6 +75,7 @@ public final class TheFirstPeer {
         FuseKademliaDto dir = new FuseKademliaDto();
         
         dir.addContent(new FuseKademliaEntryDto("Sample file.txt",'f'));
+        dir.addContent(new FuseKademliaEntryDto("Sample file 2.txt",'f'));
 		dir.addContent(new FuseKademliaEntryDto("Sample directory", 'd'));
 		dir.addContent(new FuseKademliaEntryDto("Directory with files", 'd'));
 		//dirWithFiles.add(new MemoryFile("hello.txt", "This is some sample text.\n"));
@@ -84,14 +85,28 @@ public final class TheFirstPeer {
 		//nestedDirectory.add(new MemoryFile("So deep.txt", "Man, I'm like, so deep in this here file structure.\n"));
 		
         
-        FutureDHT futureDHT = peer1.put(new Number160(new ShortString("joao-file-/")))
+        FutureDHT futureDHT = peer1.put(Number160.createHash("joao-file-/"))
 				 .setRefreshSeconds(2).setData(new Data(dir)).start();
 		futureDHT.awaitUninterruptibly();
         
-		futureDHT = peer1.get(new Number160(new ShortString("joao-file-/"))).start();
+		futureDHT = peer1.put(Number160.createHash("joao-/Sample file.txt"))
+				 .setRefreshSeconds(2).setData(new Data("ola")).start();
+		futureDHT.awaitUninterruptibly();
+		
+		futureDHT = peer1.get(Number160.createHash("joao-/Sample file.txt")).start();
         futureDHT.awaitUninterruptibly();
         
-        System.out.println(futureDHT.getLocationKey());
+        System.out.println(futureDHT.getData().getObject());
+		
+		
+		futureDHT = peer1.put(Number160.createHash("joao-/Sample file 2.txt"))
+				 .setRefreshSeconds(2).setData(new Data("ola2")).start();
+		futureDHT.awaitUninterruptibly();
+		
+		futureDHT = peer1.get(Number160.createHash("joao-/Sample file.txt")).start();
+        futureDHT.awaitUninterruptibly();
+        
+        System.out.println(futureDHT.getData().getObject());
 		
         
     }

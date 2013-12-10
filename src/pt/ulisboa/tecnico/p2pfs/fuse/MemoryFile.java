@@ -1,14 +1,12 @@
 package pt.ulisboa.tecnico.p2pfs.fuse;
 
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 import net.fusejna.StructStat.StatWrapper;
 import net.fusejna.types.TypeMode.NodeType;
 
-public final class MemoryFile extends MemoryPath implements Serializable {
-	private static final long serialVersionUID = 1L;
+public final class MemoryFile extends MemoryPath {
 	
 	private ByteBuffer contents = ByteBuffer.allocate(0);
 
@@ -29,6 +27,14 @@ public final class MemoryFile extends MemoryPath implements Serializable {
 		catch (final UnsupportedEncodingException e) {
 			// Not going to happen
 		}
+	}
+
+	public ByteBuffer getContents() {
+		return contents;
+	}
+
+	public void setContents(ByteBuffer contents) {
+		this.contents = contents;
 	}
 
 	@Override
@@ -72,5 +78,10 @@ public final class MemoryFile extends MemoryPath implements Serializable {
 		contents.put(bytesToWrite);
 		contents.position(0); // Rewind
 		return (int) bufSize;
+	}
+	
+	public boolean hasContent() {
+		
+		return contents.capacity() != 0;
 	}
 }
