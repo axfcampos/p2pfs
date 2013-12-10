@@ -30,11 +30,11 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		
 		this.kademlia = new Kademlia(username);
 		
-		rootDirectory.contents = memoryPathFromFuseKadmliaDto((FuseKademliaDto) kademlia.getMyFileData());
+		rootDirectory.contents = memoryPathFromFuseKadmliaDto((FuseKademliaDto) kademlia.getMyFileData(), rootDirectory);
 		
 	}
 	
-	private List<MemoryPath> memoryPathFromFuseKadmliaDto(FuseKademliaDto dto) {
+	private List<MemoryPath> memoryPathFromFuseKadmliaDto(FuseKademliaDto dto, MemoryDirectory parent) {
 		
 		List<MemoryPath> dir = new ArrayList<MemoryPath>();
 		
@@ -42,7 +42,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			if (entry.getType() == FuseKademliaEntryDto.DIR)
 				dir.add(new MemoryDirectory(entry.getName()));
 			else
-				dir.add(new MemoryFile(entry.getName()));
+				dir.add(new MemoryFile(entry.getName(), parent));
 		
 		return dir;
 		
@@ -64,7 +64,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			
 			try {
 				
-				dir.contents = memoryPathFromFuseKadmliaDto(kademlia.getDirectoryObject(path));
+				dir.contents = memoryPathFromFuseKadmliaDto(kademlia.getDirectoryObject(path), dir);
 				
 				return 0;
 			
@@ -77,6 +77,10 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 				return -ErrorCodes.EEXIST();
 			}
 		
+		} else if(p instanceof MemoryFile) {
+			
+			return 0;
+			
 		}
 		
 		return 1;

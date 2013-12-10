@@ -19,6 +19,7 @@ public abstract class MemoryPath {
 	}
 
 	public void delete() {
+		
 		if (parent != null) {
 			parent.contents.remove(this);
 			parent = null;
