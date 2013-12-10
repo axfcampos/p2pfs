@@ -72,7 +72,7 @@ public final class TheFirstPeer {
         Peer peer1 = new PeerMaker(new Number160(nr1)).setPorts(port1).setEnableIndirectReplication(true)
         		.setEnableTracker(true).makeAndListen();
         
-        FuseKademliaDto dir = new FuseKademliaDto();
+        FuseKademliaDto dir = new FuseKademliaDto("/");
         
         dir.addContent(new FuseKademliaEntryDto("Sample file.txt",'f'));
         dir.addContent(new FuseKademliaEntryDto("Sample file 2.txt",'f'));
@@ -84,7 +84,7 @@ public final class TheFirstPeer {
 		//dirWithFiles.add(nestedDirectory);
 		//nestedDirectory.add(new MemoryFile("So deep.txt", "Man, I'm like, so deep in this here file structure.\n"));
 		
-        
+        /*
         FutureDHT futureDHT = peer1.put(Number160.createHash("joao-file-/"))
 				 .setRefreshSeconds(2).setData(new Data(dir)).start();
 		futureDHT.awaitUninterruptibly();
@@ -108,6 +108,6 @@ public final class TheFirstPeer {
         
         System.out.println(futureDHT.getData().getObject());
 		
-        
+        */
     }
 }

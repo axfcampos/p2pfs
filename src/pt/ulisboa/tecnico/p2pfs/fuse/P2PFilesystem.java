@@ -15,6 +15,7 @@ import net.fusejna.types.TypeMode.ModeWrapper;
 import net.fusejna.util.FuseFilesystemAdapterAssumeImplemented;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaEntryDto;
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
 import pt.ulisboa.tecnico.p2pfs.kademlia.Kademlia;
 
 public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
@@ -63,8 +64,6 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			
 			try {
 				
-				System.out.println(dir.contents.size());
-				
 				dir.contents = memoryPathFromFuseKadmliaDto(kademlia.getDirectoryObject(path));
 				
 				return 0;
@@ -102,8 +101,10 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 				
 				String name = splitter[splitter.length - 1];
 				
+				System.out.println("PATH: " + path + ":" + path.substring(0, path.indexOf("/")));
+				
 				kademlia.createFile(path);
-				if(path.equals("/"))
+				if(path.substring(0, path.lastIndexOf("/") + 1).equals("/"))
 					kademlia.updateDirectory(path.substring(0, path.lastIndexOf('/') + 1)
 							, new FuseKademliaEntryDto(name, 'f'));
 				else 
@@ -129,19 +130,15 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 	public int getattr(final String path, final StatWrapper stat)
 	{
 		if(rootDirectory.find(path) instanceof MemoryFile && !path.contains("/.")) {
-		
-			System.out.println("I'm in open: " + path);
 			
 			MemoryFile file = (MemoryFile) rootDirectory.find(path);
 			
 			if(!file.hasContent())
 				try {
-						String str = (String) kademlia.getFileObject(path);
+						String str = (String) ((FuseKademliaFileDto) kademlia.getFileObject(path)).getContent();
 						
 						final byte[] contentBytes = str.getBytes("UTF-8");
 						file.setContents(ByteBuffer.wrap(contentBytes));
-						
-						System.out.println(((MemoryFile)rootDirectory.find(path)).getContents().capacity());
 						
 				} catch (ClassNotFoundException e) {
 					
@@ -201,8 +198,13 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			
 			try {
 			
-				kademlia.updateDirectory(path.substring(0, path.lastIndexOf('/') + 1)
+				if (path.substring(0, path.lastIndexOf('/') + 1).equals("/"))
+					kademlia.updateDirectory(path.substring(0, path.lastIndexOf('/') + 1)
 								, new FuseKademliaEntryDto(name, 'd'));
+				else
+					kademlia.updateDirectory(path.substring(0, path.lastIndexOf('/'))
+							, new FuseKademliaEntryDto(name, 'd'));
+			
 				kademlia.createDirFile(path);
 			
 			} catch (ClassNotFoundException e) {
@@ -286,6 +288,21 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			return -ErrorCodes.ENOTDIR();
 		}
 		p.delete();
+		
+		try {
+			
+			kademlia.removeDir(path);
+			
+		} catch (ClassNotFoundException e) {
+			
+			System.out.println("Problem removing directory...");
+			e.printStackTrace();
+		} catch (IOException e) {
+
+			System.out.println("Problem removing directory...");
+			e.printStackTrace();
+		}
+		
 		return 0;
 	}
 
@@ -338,7 +355,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		
 		try {
 			
-			kademlia.updateFile(path, str);
+			kademlia.updateFile(path, new FuseKademliaFileDto(1, 1, str));
 		} catch (IOException e) {
 			System.out.println("Problems Updating File...");
 			e.printStackTrace();

@@ -15,6 +15,7 @@ import net.tomp2p.storage.Data;
 
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaEntryDto;
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
 
 public class Kademlia {
 	
@@ -82,9 +83,7 @@ public class Kademlia {
 	
 	public void createDirFile(String path) throws IOException, ClassNotFoundException {
 		
-		System.out.println("CREATE: " + path);
-		
-		Data data = new Data(new FuseKademliaDto());
+		Data data = new Data(new FuseKademliaDto(path));
 		
 		FutureDHT futureDHT = me.put(Number160.createHash(username + "-file-" + path))
 				 .setRefreshSeconds(2).setData(data).start();
@@ -96,29 +95,17 @@ public class Kademlia {
 	
 	private FutureDHT getDirFile(String path) {
 		
-		System.out.println("GET: " + path);
-		
 		Number160 location = Number160.createHash(username + "-file-" + path);
 		
 		FutureDHT futureDHT = me.get(location).start();
-        futureDHT.awaitUninterruptibly();
-        
-        try {
-			for (FuseKademliaEntryDto entry : ((FuseKademliaDto) futureDHT.getData().getObject()).getContents())
-				System.out.println(entry.getName());
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+        futureDHT.awaitUninterruptibly();	
         
         return futureDHT;
 	}
 	
 	public FuseKademliaDto getDirectoryObject(String path) throws ClassNotFoundException, IOException {
+		
+		System.out.println("DIR OBJ: " + path);
 		
 		FuseKademliaDto dto = (FuseKademliaDto) getDirFile(path).getData().getObject();
 		
@@ -140,7 +127,7 @@ public class Kademlia {
 	public void createFile(String path) throws IOException {
 		
 		FutureDHT futureDHT = me.put(Number160.createHash(username + "-" + path))
-				 .setRefreshSeconds(2).setData(new Data("")).start();
+				 .setRefreshSeconds(2).setData(new Data(new FuseKademliaFileDto())).start();
 		futureDHT.awaitUninterruptibly();
        
 	}
@@ -153,10 +140,7 @@ public class Kademlia {
 	}
 
 	public void updateDirectory(String path, FuseKademliaEntryDto entry) throws ClassNotFoundException, IOException {
-		
-
-		System.out.println(path);
-		
+			
 		FuseKademliaDto dto = (FuseKademliaDto) getDirectoryObject(path);
 		
 		dto.addContent(entry);
@@ -168,11 +152,41 @@ public class Kademlia {
       
 	}
 
-	public void updateFile(String path, String str) throws IOException {
+	public void updateFile(String path, FuseKademliaFileDto dto) throws IOException {
 		
 		FutureDHT futureDHT = me.put(Number160.createHash(username + "-" + path))
-				 .setRefreshSeconds(2).setData(new Data(str)).start();
+				 .setRefreshSeconds(2).setData(new Data(dto)).start();
 		futureDHT.awaitUninterruptibly();
+		
+	}
+
+	public void removeDir(String path) throws ClassNotFoundException, IOException {
+		
+		System.out.println("TOTAL: " + path);
+		
+		FutureDHT futureDHT = me.remove(Number160.createHash(username + "-file-" + path)).start();
+		futureDHT.awaitUninterruptibly();
+		
+		FuseKademliaDto dto;
+		
+		System.out.println("PAI: "+ path.substring(0, path.lastIndexOf("/")));
+		
+		if(path.substring(0, path.lastIndexOf("/")+1).equals("/")) {
+			dto = getDirectoryObject("/");
+			dto.removeContent(path.substring(path.indexOf("/") + 1));
+			
+			futureDHT = me.put(Number160.createHash(username + "-file-/"))
+					 .setRefreshSeconds(2).setData(new Data(dto)).start();
+			futureDHT.awaitUninterruptibly();
+			
+		} else {
+			dto = getDirectoryObject(path.substring(0, path.lastIndexOf("/")));
+			dto.removeContent(path.substring(path.indexOf("/") + 1));
+			
+			futureDHT = me.put(Number160.createHash(username + "-file-" + path.substring(0, path.lastIndexOf("/"))))
+					 .setRefreshSeconds(2).setData(new Data(dto)).start();
+			futureDHT.awaitUninterruptibly();
+		}
 		
 	}
 
