@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
 import net.tomp2p.futures.FutureDHT;
 import net.tomp2p.futures.FutureBootstrap; 
 import net.tomp2p.p2p.Peer;
@@ -16,10 +18,12 @@ public class User {
 
 	private Peer peer;
 	private String userLoginName;
-
+	private MyPeerMaker mpm;
+	
     public User(int peerId) throws Exception {
     //   peer = new PeerMaker(Number160.createHash(peerId)).setPorts(4000 + peerId).makeAndListen();
-      peer = new PeerMaker(Number160.createHash(peerId)).setPorts(5000 + peerId).setEnableIndirectReplication(true)
+    	mpm = new MyPeerMaker(Number160.createHash(peerId));
+    	peer = mpm.setPorts(5000 + peerId).setEnableIndirectReplication(true)
     		  .setReplicationRefreshMillis(10000).setEnableTracker(true).makeAndListen();
 //       peer1 = new PeerMaker(new Number160(nr1)).setPorts(port1).setEnableIndirectReplication(true)
 //                .makeAndListen();
@@ -73,8 +77,10 @@ public class User {
     	
     	User usr = new User(create_user());
     	usr.userLoginName = usr.retrieveLoginName();
-    	usr.retrieveMetadata();
-    	usr.shell_loop();
+//    	usr.retrieveMetadata();
+//    	usr.shell_loop();
+    	usr.teste_stats_storage();
+    	
     	
     	//System.out.println("No Exception");
 
@@ -90,6 +96,22 @@ public class User {
 		
     }
     
+    public void teste_stats_storage(){
+    	try {
+    		FuseKademliaFileDto fkdto = new FuseKademliaFileDto(1, 17, "111111111111111111111111111111111111111111111111111111111111");
+    		FuseKademliaFileDto f = new FuseKademliaFileDto(16, 17, "111111111111111111111111111111111111111111111111111111111111");
+//    		fkdto.setRoot(true);
+			store("asd", fkdto);
+			store("asds", f);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	System.out.println(((MyStorageMemory) mpm.getStorage()).getNumberOfRootMetaFilesImResponsibleFor()); //da 0
+    	System.out.println(((MyStorageMemory) mpm.getStorage()).getNumStoredFiles()); //da 1.0
+    	System.out.println(((MyStorageMemory) mpm.getStorage()).getNumMBFiles()); //da algo
+    	System.out.println(((MyStorageMemory) mpm.getStorage()).getNumMBMeta()); //0
+    }
     
     private static int create_user(){
     	System.out.println("Inser user id (this is the ID that will decide your 'place' on the P2PFS network):");
