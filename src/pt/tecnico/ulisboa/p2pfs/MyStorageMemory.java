@@ -3,6 +3,8 @@ package pt.tecnico.ulisboa.p2pfs;
 import java.io.IOException;
 import java.util.NavigableMap;
 
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
+import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
 import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.Number480;
 import net.tomp2p.storage.Data;
@@ -24,15 +26,15 @@ public class MyStorageMemory extends StorageMemory{
 		boolean ret = super.put(locationKey, domainKey, contentKey, value);
 	
 		try {
-			if(value.getObject() instanceof MetaStub){
+			if(value.getObject() instanceof FuseKademliaDto){
 				
 				stat.addMBMeta(value.getData().length * 1000 * 1000); //Byte to MB... and not Byte to Mebibyte
 				
 			}else{
-			if(value.getObject() instanceof FileStub){
+			if(value.getObject() instanceof FuseKademliaFileDto){
 			
 				stat.addMBFiles(value.getData().length * 1000 * 1000);
-				stat.addFile(1); //TODO ver as partes
+				stat.addFile((double) 1 / ((FuseKademliaFileDto) value.getObject()).getTotalNumberParts());
 				
 			}else{
 				System.out.println("@MyStorageMemory put: ERRO FICHEIRO RECEBIDO NAO E META NEM FILE");
@@ -54,15 +56,15 @@ public class MyStorageMemory extends StorageMemory{
 		Data ret = super.remove(locationKey, domainKey, contentKey);
 		
 		try {
-			if(ret.getObject() instanceof MetaStub){
+			if(ret.getObject() instanceof FuseKademliaDto){
 				
 				stat.remMBMeta(ret.getData().length * 1000 * 1000); //Byte to MB... and not Byte to Mebibyte
 				
 			}else{
-			if(ret.getObject() instanceof FileStub){
+			if(ret.getObject() instanceof FuseKademliaFileDto){
 			
 				stat.remMBFiles(ret.getData().length * 1000 * 1000);
-				stat.remFile(1); //TODO ver as partes
+				stat.remFile((double) 1 / ((FuseKademliaFileDto) ret.getObject()).getTotalNumberParts());
 				
 			}else{
 				System.out.println("@MyStorageMemory remove: ERRO FICHEIRO RECEBIDO NAO E META NEM FILE");
@@ -87,9 +89,9 @@ public class MyStorageMemory extends StorageMemory{
 		for(Number480 n : map.descendingKeySet()){
 			Data d = map.get(n);
 			try {
-				if(d.getObject() instanceof MetaStub){
+				if(d.getObject() instanceof FuseKademliaDto){
 					
-					if(((MetaStub) d.getObject()).isRoot()){
+					if(((FuseKademliaDto) d.getObject()).isRoot()){
 						
 						if(this.myOwnerPeerId.compareTo(super.findPeerIDForResponsibleContent(n.getLocationKey())) == 0){
 							rootMetasIOwn++;
@@ -105,15 +107,6 @@ public class MyStorageMemory extends StorageMemory{
 			}
 		}
 		return rootMetasIOwn;
-	}
-	
-	private class FileStub{}
-	private class MetaStub{
-
-		public boolean isRoot() {
-			// TODO Auto-generated method stub
-			return false;
-		}
 	}
 	
 	public double getNumStoredFiles(){
