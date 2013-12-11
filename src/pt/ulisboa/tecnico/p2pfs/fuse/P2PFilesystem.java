@@ -403,12 +403,12 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		return 0;
 	}
 	
-	public void myMount(String username) throws IOException, ClassNotFoundException, FuseException{
+	public void myMount(String username, String path) throws IOException, ClassNotFoundException, FuseException{
 		
 		kademlia.setUserName(username);
 		kademlia.getMetadata();
 		rootDirectory.contents = memoryPathFromFuseKadmliaDto((FuseKademliaDto) kademlia.getMyFileData(), rootDirectory);
-		this.log(true).mount(username);
+		this.log(true).mount(path);
 	}
 	
 	public static void main(final String... args) throws FuseException, IOException, ClassNotFoundException {
@@ -453,16 +453,16 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		}
 		
 		//main com id e nome
-		if(args.length == 1){
+		if(args.length == 2){
 			p2pfs = new P2PFilesystem(id);
-			p2pfs.myMount(args[1]);
+			p2pfs.myMount(args[0], args[1]);
 			//chamar o mesmo shell loop de cima, mas ele ja vai reconhecer que ta mounted e comeca num estado correcto
 			//a ideia para este e comecar todos os nos sem necessitarem de qualquer input, onde podem logo comecar a levar operacoes de fuse (por exemplo de um script bash)
 			p2pfs.shell_loop();
 		}
 		
 		//main com id e nome e bool para puts e get e fazer difuse ao fuse
-		if(args.length == 2){
+		if(args.length == 3){
 			p2pfs = new P2PFilesystem(id);
 			//nao se faz mount
 			p2pfs.put_get_shell_loop(); //Pa fazer puts e gets a vontade
@@ -470,7 +470,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		}
 		
 		//main com id e nome e boo para puts e gets e fazer difuse ao fuse e correr super teste de trafego com puts e gets
-		if(args.length == 3){
+		if(args.length == 4){
 			p2pfs = new P2PFilesystem(id);
 			//nao se faz mount
 			p2pfs.put_get_shell_loop();
