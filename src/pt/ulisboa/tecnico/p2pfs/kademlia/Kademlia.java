@@ -92,7 +92,7 @@ public class Kademlia {
 		myStorageMemory = (MyStorageMemory) peerMaker.getStorage();
 		
 		//associar/lancar classes de gossip
-		gossip = new Gossip(me,myStorageMemory);
+		gossip = new Gossip(me,myStorageMemory,myId);
 		
 		
 		me.setObjectDataReply( new ObjectDataReply()
@@ -152,15 +152,9 @@ public class Kademlia {
 		
 	
 		
-		//Start gossip
-		try {
-			gossip.gossipStart();
-		} catch (InterruptedException e) {
-			
-			System.out.println("Gossip exception");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Thread t = new Thread(gossip);
+		t.start();
+//	gossip.gossipStart();
 		
 		
 		
