@@ -11,12 +11,13 @@ import net.tomp2p.p2p.Peer;
 import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.ShortString;
 import net.tomp2p.storage.Data;
-
+import pt.tecnico.ulisboa.p2pfs.Directory;
 import pt.ulisboa.tecnico.p2pfs.MyPeerMaker;
 import pt.ulisboa.tecnico.p2pfs.MyStorageMemory;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaEntryDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
+import pt.ulisboa.tecnico.p2pfs.fuse.P2PFilesystem;
 
 public class Kademlia {
 	
@@ -27,16 +28,18 @@ public class Kademlia {
 	static String HOST = "localhost";
 	
 	String username;
-	
+	long myId;
 	Peer me;
-	
-	MyStorageMemory myStorageMemory;
+	private P2PFilesystem p2pfs;
+	private MyStorageMemory myStorageMemory;
 	
 	FuseKademliaDto myFileData;
 	
-	public Kademlia(String username) {
+	public Kademlia(long id, P2PFilesystem p2pfs) {
 		
-		this.username = username;
+//		this.username = username;
+		this.p2pfs = p2pfs;
+		this.myId = id;
 		
 		try {
 			
@@ -54,18 +57,37 @@ public class Kademlia {
 		}
 	}
 	
+	public MyStorageMemory getStorageMemory(){
+		return myStorageMemory;
+	}
+	
+	public boolean isMounted(){
+		return p2pfs.isMounted();
+	}
+	
+	public void setUserName(String username){
+		this.username = username;
+	}
+	
+	public String getUsername(){
+		return this.username;
+	}
+	
 	public FuseKademliaDto getMyFileData() {
 		return myFileData;
 	}	
 	
 	private void initPeer() throws IOException, ClassNotFoundException {
 		
-		MyPeerMaker peerMaker = new MyPeerMaker(new Number160(new ShortString(username)));
+		MyPeerMaker peerMaker = new MyPeerMaker(Number160.createHash(myId));
 		
 		
 		me = peerMaker.setPorts(PORT)
 				.setEnableIndirectReplication(true).setEnableTracker(true).makeAndListen();
 		myStorageMemory = (MyStorageMemory) peerMaker.getStorage();
+		
+		//associar/lancar classes de gossip
+		
 		
 		InetAddress address = Inet4Address.getByName(HOST);
 		
@@ -74,8 +96,9 @@ public class Kademlia {
 		
 		FutureBootstrap futureBootstrap = me.bootstrap().setInetAddress( address ).setPorts( 9101 ).start();
 		futureBootstrap.awaitUninterruptibly();
-		
-		
+	}
+	
+	public void getMetadata() throws IOException, ClassNotFoundException{
 		
 		FutureDHT futureDHT = getDirFile("/");
         Data data = futureDHT.getData();
@@ -85,6 +108,7 @@ public class Kademlia {
         } else {
         	myFileData = (FuseKademliaDto) data.getObject();
         }
+		
 	}
 	
 	public void createDirFile(String path) throws IOException, ClassNotFoundException {
@@ -248,5 +272,25 @@ public class Kademlia {
 		
 	}
 
+	
+	//Para quando nao temos o FUSE a funcionar
+	public Object get(String name) throws ClassNotFoundException, IOException {
+	    FutureDHT futureDHT = me.get(Number160.createHash(name)).start();
+	    futureDHT.awaitUninterruptibly();
+	    if (futureDHT.isSuccess()) {
+	
+	    	return futureDHT.getData().getObject();
+	    }
+
+	    return "not found";
+    }
+
+	public void store(String key, Object value) throws IOException {
+        me.put(Number160.createHash(key)).setData(new Data(value)).start().awaitUninterruptibly();
+	}
+    
+    public void remove(String key) throws IOException {
+        me.remove(Number160.createHash(key));
+    }
 
 }

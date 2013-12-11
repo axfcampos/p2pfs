@@ -118,6 +118,9 @@ public class MyStorageMemory extends StorageMemory{
 	public double getNumMBMeta(){
 		return stat.getNumMBMeta();
 	}
+	public void printStats(){
+		System.out.println(stat.toString());
+	}
 	private class StatAggregator{
 		
 		private double nFiles;
@@ -155,6 +158,9 @@ public class MyStorageMemory extends StorageMemory{
 		}
 		public double getNumMBMeta() {
 			return nMBMeta;
+		}
+		public String toString(){
+			return "nFiles: " + nFiles + "\n nMBFIles: " + nMBFiles + "\n nMBMeta: " + nMBMeta + "\n"; 
 		}
 	}
 }
