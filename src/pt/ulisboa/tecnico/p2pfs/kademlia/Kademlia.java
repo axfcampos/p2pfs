@@ -136,9 +136,29 @@ public class Kademlia {
        
 	}
 	
-	public void removeFile(String path) {
+	public void removeFile(String path) throws ClassNotFoundException, IOException {
 		
 		FutureDHT futureDHT = me.remove(Number160.createHash(username + "-" + path)).start();
+		futureDHT.awaitUninterruptibly();
+		
+		String parentDir;
+		
+		if(path.substring(0, path.lastIndexOf("/") + 1).equals("/"))
+			parentDir = "/";
+		else
+			parentDir = path.substring(0, path.lastIndexOf("/"));
+		
+		System.out.println(parentDir);
+		
+		futureDHT = me.get(Number160.createHash(username + "-file-" + parentDir)).start();
+		futureDHT.awaitUninterruptibly();
+		
+		FuseKademliaDto dto = (FuseKademliaDto) futureDHT.getData().getObject();
+		
+		dto.removeContent(path.substring(path.lastIndexOf("/") + 1));
+		
+		futureDHT = me.put(Number160.createHash(username + "-file-" + parentDir))
+				 .setRefreshSeconds(2).setData(new Data(dto)).start();
 		futureDHT.awaitUninterruptibly();
       
 	}
@@ -187,6 +207,44 @@ public class Kademlia {
 					 .setRefreshSeconds(2).setData(new Data(dto)).start();
 			futureDHT.awaitUninterruptibly();
 		}
+		
+	}
+
+	public void renameFile(String oldPath, String newPath) throws ClassNotFoundException, IOException {
+		
+		FutureDHT futureDHT = me.get(Number160.createHash(username + "-" + oldPath)).start();
+		futureDHT.awaitUninterruptibly();
+		
+		futureDHT = me.put(Number160.createHash(username + "-" + newPath))
+		 			.setRefreshSeconds(2).setData(new Data((FuseKademliaFileDto) futureDHT.getObject())).start();
+		
+		futureDHT = me.remove(Number160.createHash(username + "-" + oldPath)).start();
+		futureDHT.awaitUninterruptibly();
+		
+		String parentDir;
+		
+		if(oldPath.substring(0, oldPath.lastIndexOf("/") + 1).equals("/"))
+			parentDir = "/";
+		else
+			parentDir = oldPath.substring(0, oldPath.lastIndexOf("/"));
+		
+		System.out.println(parentDir);
+		
+		futureDHT = me.get(Number160.createHash(username + "-file-" + parentDir)).start();
+		futureDHT.awaitUninterruptibly();
+		
+		FuseKademliaDto dto = (FuseKademliaDto) futureDHT.getData().getObject();
+		
+		dto.removeContent(oldPath.substring(oldPath.lastIndexOf("/") + 1));
+		
+		futureDHT = me.put(Number160.createHash(username + "-file-" + parentDir))
+				 .setRefreshSeconds(2).setData(new Data(dto)).start();
+		futureDHT.awaitUninterruptibly();
+		
+		
+		updateDirectory(newPath.substring(0, newPath.lastIndexOf("/")),
+							new FuseKademliaEntryDto(newPath.substring(newPath.lastIndexOf("/") + 1), 'f'));
+		
 		
 	}
 

@@ -273,6 +273,19 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		if (!(newParent instanceof MemoryDirectory)) {
 			return -ErrorCodes.ENOTDIR();
 		}
+		
+		if (p instanceof MemoryDirectory) {
+			
+			
+			
+		} else if (p instanceof MemoryFile) {
+			
+			//kademlia.renameFile();
+			
+		}
+		
+		
+		
 		p.delete();
 		p.rename(newName.substring(newName.lastIndexOf("/")));
 		((MemoryDirectory) newParent).add(p);
@@ -330,6 +343,18 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			return -ErrorCodes.ENOENT();
 		}
 		p.delete();
+		try {
+			kademlia.removeFile(path);
+			
+		} catch (ClassNotFoundException e) {
+			
+			System.out.println("Problem Removing File...");
+			e.printStackTrace();
+		} catch (IOException e) {
+
+			System.out.println("Problem Removing File...");
+			e.printStackTrace();
+		}
 		return 0;
 	}
 

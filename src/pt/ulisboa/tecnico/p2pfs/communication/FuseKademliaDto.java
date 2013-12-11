@@ -39,13 +39,16 @@ public class FuseKademliaDto implements Serializable {
 	
 	public void removeContent(String name) {
 		
+		System.out.println(contents.size());
+		
 		for(FuseKademliaEntryDto e : contents) {
-			System.out.println("CONT RM: " + e.getName() + ":" + name);
+			System.out.println(e.getName()+":"+name);
 			if(e.getName().equals(name)) {
 				contents.remove(e);
 				break;
 			}
 		}
+		System.out.println(contents.size());
 	}
 
 }
