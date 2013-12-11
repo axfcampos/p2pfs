@@ -15,6 +15,6 @@
 	<classpathentry kind="lib" path="../fuse/bin" sourcepath="/fuse/fuse-jna/src"/>
 	<classpathentry kind="lib" path="../jna-4.0.0.jar"/>
 	<classpathentry kind="lib" path="../jna-platform-4.0.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk-i386"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk-amd64"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
