@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="../TomP2P-4.4/TomP2P-4.4-sources.jar"/>
 	<classpathentry kind="lib" path="../TomP2P-4.4/TomP2P-4.4-javadoc.jar"/>
-	<classpathentry kind="lib" path="../TomP2P-4.4/TomP2P-4.4.jar"/>
+	<classpathentry kind="lib" path="../TomP2P-4.4/TomP2P-4.4.jar" sourcepath="/home/axfcampos/workspace/TomP2P-TomP2P-4.4"/>
 	<classpathentry kind="lib" path="../TomP2P-4.4/lib/slf4j-api-1.6.4.jar"/>
 	<classpathentry kind="lib" path="../TomP2P-4.4/lib/netty-3.5.3.Patched.jar"/>
 	<classpathentry kind="lib" path="../TomP2P-4.4/lib/logback-core-1.0.1.jar"/>
@@ -15,6 +15,6 @@
 	<classpathentry kind="lib" path="../fuse/bin" sourcepath="/fuse/fuse-jna/src"/>
 	<classpathentry kind="lib" path="../jna-4.0.0.jar"/>
 	<classpathentry kind="lib" path="../jna-platform-4.0.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk-i386"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
