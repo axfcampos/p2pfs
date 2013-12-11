@@ -9,7 +9,9 @@ import net.tomp2p.futures.FutureDHT;
 import net.tomp2p.futures.FutureDiscover;
 import net.tomp2p.p2p.Peer;
 import net.tomp2p.peers.Number160;
+import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.peers.ShortString;
+import net.tomp2p.rpc.ObjectDataReply;
 import net.tomp2p.storage.Data;
 import pt.tecnico.ulisboa.p2pfs.Directory;
 import pt.ulisboa.tecnico.p2pfs.MyPeerMaker;
@@ -18,6 +20,8 @@ import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaEntryDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
 import pt.ulisboa.tecnico.p2pfs.fuse.P2PFilesystem;
+import pt.ulisboa.tecnico.p2pfs.gossip.Gossip;
+import pt.ulisboa.tecnico.p2pfs.gossip.GossipDTO;
 
 public class Kademlia {
 	
@@ -32,6 +36,7 @@ public class Kademlia {
 	Peer me;
 	private P2PFilesystem p2pfs;
 	private MyStorageMemory myStorageMemory;
+	public static 	Gossip gossip;
 	
 	FuseKademliaDto myFileData;
 	
@@ -87,6 +92,70 @@ public class Kademlia {
 		myStorageMemory = (MyStorageMemory) peerMaker.getStorage();
 		
 		//associar/lancar classes de gossip
+		gossip = new Gossip(me,myStorageMemory,myId);
+		
+		
+		me.setObjectDataReply( new ObjectDataReply()
+		{
+
+			//SetupReply
+			@Override
+			public Object reply( PeerAddress sender, Object request )throws Exception{
+
+				if (request.getClass() == GossipDTO.class){
+					GossipDTO dto = (GossipDTO) request;
+
+					
+					System.out.println("I'm "+ myId + " and I just got the message From nodeID " + dto.getNodeId());
+					
+					if (dto.getNodeId() == myId){
+						//TODO dava jeito...........
+						System.out.println("1");
+						return "receive from myshelf dont count";
+					}
+
+					
+					if((gossip.gossipStart == false)){
+						System.out.println("3");
+						
+						if(	dto.getNodeId() > myId)
+						{
+							System.out.println("3");
+						//TODO devia ter sido eu a começar
+							return "STOP";
+						}
+						
+						gossip.gossipStart = true;
+						//gossipRound = dto.getRoundId();
+						gossip.starterId = dto.getNodeId();
+					}
+					
+//					if(dto.getNodeId() > getPeerID() && dto.getRoundId() == gossipRound ){
+//						System.out.println("4");
+//						//TODO enviar DTO com estado actual para nó iniciar contagem
+//						
+//					return gossip;
+//					}
+					
+					gossip.lock.lock();
+					gossip.gossipList.add(dto);
+					gossip.lock.unlock();
+					System.out.println("I'm "+ myId + " and I just got the message From nodeID " + dto.getNodeId());
+					return "--AKC--";
+				}
+
+				return "--AKC -- Not receive a GossipDTO";
+			}
+
+			
+		} );
+		
+	
+		
+		Thread t = new Thread(gossip);
+		t.start();
+//	gossip.gossipStart();
+		
 		
 		
 		InetAddress address = Inet4Address.getByName(HOST);
