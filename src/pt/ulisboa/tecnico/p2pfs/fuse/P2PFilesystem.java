@@ -1,10 +1,19 @@
 package pt.ulisboa.tecnico.p2pfs.fuse;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import net.fusejna.DirectoryFiller;
 import net.fusejna.ErrorCodes;
@@ -13,6 +22,7 @@ import net.fusejna.StructFuseFileInfo.FileInfoWrapper;
 import net.fusejna.StructStat.StatWrapper;
 import net.fusejna.types.TypeMode.ModeWrapper;
 import net.fusejna.util.FuseFilesystemAdapterAssumeImplemented;
+import net.tomp2p.storage.Data;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaEntryDto;
 import pt.ulisboa.tecnico.p2pfs.communication.FuseKademliaFileDto;
@@ -21,18 +31,20 @@ import pt.ulisboa.tecnico.p2pfs.kademlia.Kademlia;
 public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 
 	private Kademlia kademlia;
-
+	private long kademliaId;
 	private MemoryDirectory rootDirectory = new MemoryDirectory();
 
-	public P2PFilesystem(String username) {
+	public P2PFilesystem(long id) {
 		// Sprinkle some files around
 		
+		this.kademliaId = id;
+		this.kademlia = new Kademlia(id, this);
 		
-		this.kademlia = new Kademlia(username);
 		
-		rootDirectory.contents = memoryPathFromFuseKadmliaDto((FuseKademliaDto) kademlia.getMyFileData(), rootDirectory);
 		
 	}
+	
+	
 	
 	private List<MemoryPath> memoryPathFromFuseKadmliaDto(FuseKademliaDto dto, MemoryDirectory parent) {
 		
@@ -391,10 +403,158 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		return 0;
 	}
 	
-	
-	public static void main(final String... args) throws FuseException {
+	public void myMount(String username) throws IOException, ClassNotFoundException, FuseException{
 		
-		new P2PFilesystem(args[0]).log(true).mount(args[1]);
+		kademlia.setUserName(username);
+		kademlia.getMetadata();
+		rootDirectory.contents = memoryPathFromFuseKadmliaDto((FuseKademliaDto) kademlia.getMyFileData(), rootDirectory);
+		this.log(true).mount(username);
 	}
-
+	
+	public static void main(final String... args) throws FuseException, IOException, ClassNotFoundException {
+		
+//		new P2PFilesystem(args[0]).log(true).mount(args[1]);
+		
+		File f = new File("myid.txt");
+		long id = 0;
+		if(f.exists()){
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader("myid.txt"));
+				String sid = reader.readLine();
+				id = Long.parseLong(sid);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}else{
+		
+			Calendar c = null;
+			Random r = new Random(c.getInstance().getTimeInMillis());
+			id = r.nextLong();
+			try {
+				PrintWriter writer = new PrintWriter("myid.txt");
+				writer.write(String.valueOf(id));
+				writer.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		P2PFilesystem p2pfs;
+		//main so com id
+		if(args.length == 0){
+			 p2pfs = new P2PFilesystem(id);
+			 //chamar shell loop ainda por fazer que permite fazer mount e unmount e getstats e afins
+			 p2pfs.shell_loop();
+		}
+		
+		//main com id e nome
+		if(args.length == 1){
+			p2pfs = new P2PFilesystem(id);
+			p2pfs.myMount(args[1]);
+			//chamar o mesmo shell loop de cima, mas ele ja vai reconhecer que ta mounted e comeca num estado correcto
+			//a ideia para este e comecar todos os nos sem necessitarem de qualquer input, onde podem logo comecar a levar operacoes de fuse (por exemplo de um script bash)
+			p2pfs.shell_loop();
+		}
+		
+		//main com id e nome e bool para puts e get e fazer difuse ao fuse
+		if(args.length == 2){
+			p2pfs = new P2PFilesystem(id);
+			//nao se faz mount
+			p2pfs.put_get_shell_loop(); //Pa fazer puts e gets a vontade
+			
+		}
+		
+		//main com id e nome e boo para puts e gets e fazer difuse ao fuse e correr super teste de trafego com puts e gets
+		if(args.length == 3){
+			p2pfs = new P2PFilesystem(id);
+			//nao se faz mount
+			p2pfs.put_get_shell_loop();
+			
+			//LANCAR SUPER TESTE QUE CRIA IMENSOS OBJECTOS E FAZ PUTS E GETS A SIMULAR UM FUSE A FUNCIONAR MUITO RAPIDO
+			
+		}
+	}
+	
+	private void shell_loop() throws IOException, FuseException{
+		System.out.println("Welcome to the P2PFS shell (FUSE enabled) (type 'help' for list of commands)");
+    	String input;
+    	while(!(input = (new BufferedReader(new InputStreamReader(System.in))).readLine() ).equals("quit")){
+    		
+    		if(input.equals("help")){
+    			System.out.println("Command list: \n help \n mount \'fsname\' \n unmount \n stats \n mystats \n quit \n");
+    		}else{
+    		if((input.split(" "))[0].equals("mount") && (input.split(" ")).length == 2){
+    			
+    			//faz mount
+    			//
+    			if(this.isMounted()){
+    				System.out.println("Error: fs already mounted!");
+    			}else{
+    				System.out.println("Mounting.... " + (input.split(" "))[1] + " file system.");
+    				this.mount((input.split(" "))[1]);
+    			}
+    			
+    		}else{
+    		if((input.split(" "))[0].equals("unmount") && (input.split(" ")).length == 1){
+    		
+    			//faz unmount 
+    			if(this.isMounted()){
+    				this.unmount();
+    			}else{
+    				System.out.println("Error: fs already unmounted!");
+    			}
+    				
+    		}else{
+    		if((input.split(" "))[0].equals("stats") && (input.split(" ")).length == 1){
+    			
+    			//ir buscar as stats ao gossip
+    		}else{
+    		if((input.split(" "))[0].equals("mystats") && (input.split(" ")).length == 1){
+    			
+    			kademlia.getStorageMemory().printStats();
+    		}else{
+    			System.out.println("Error: malformed input, type 'help' for commands");
+    		}}}}}
+    	}
+    	System.out.println("bye.");
+	}
+	
+    private void put_get_shell_loop() throws IOException, ClassNotFoundException{
+    	
+    	System.out.println("Welcome to the P2PFS shell (FUSE disabled) (type 'help' for list of commands)");
+    	String input;
+    	while(!(input = (new BufferedReader(new InputStreamReader(System.in))).readLine() ).equals("quit")){
+    		
+    		if(input.equals("help")){
+    			System.out.println("Command list: \n help \n put \'key\' \'value\' \n get \'key\' \n quit \n");
+    		}else{
+    		if((input.split(" "))[0].equals("put") && (input.split(" ")).length == 3){
+    			
+    			//faz put
+    			this.kademlia.store(input.split(" ")[1], input.split(" ")[2]);
+    			
+    		}else{
+    		if((input.split(" "))[0].equals("get") && (input.split(" ")).length == 2){
+    			
+    			//faz get
+    			System.out.println(this.kademlia.get(input.split(" ")[1]).toString());
+    		}else{
+    		if((input.split(" "))[0].equals("rm") && (input.split(" ")).length == 2){
+    			
+    			//faz remove
+    			this.kademlia.remove(input.split(" ")[1]);
+    			
+    		}else{
+    			System.out.println("Error: malformed input, type 'help' for commands");
+    		}}}}
+    	}
+    	
+    	System.out.println("bye.");
+    	
+    }
 }
