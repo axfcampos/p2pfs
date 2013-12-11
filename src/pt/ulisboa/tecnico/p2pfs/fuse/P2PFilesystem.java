@@ -434,6 +434,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			Calendar c = null;
 			Random r = new Random(c.getInstance().getTimeInMillis());
 			id = r.nextLong();
+			if(id  < 0) id *= -1;
 			try {
 				PrintWriter writer = new PrintWriter("myid.txt");
 				writer.write(String.valueOf(id));
