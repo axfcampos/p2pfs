@@ -4,9 +4,16 @@ package pt.ulisboa.tecnico.p2pfs.gossip;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.tomp2p.futures.FutureDHT;
+import net.tomp2p.p2p.Peer;
+import net.tomp2p.p2p.RequestP2PConfiguration;
+import net.tomp2p.peers.Number160;
+
+import pt.ulisboa.tecnico.p2pfs.MyStorageMemory;
 import pt.ulisboa.tecnico.p2pfs.kademlia.Kademlia;
 
 public class Gossip {
@@ -24,7 +31,7 @@ public class Gossip {
 	
 	public static long peerID;
 
-	private static Lock lock= new ReentrantLock();
+	public static Lock lock= new ReentrantLock();
 	public static List<GossipDTO> gossipList = new ArrayList<GossipDTO>();
 
 
@@ -50,7 +57,18 @@ public class Gossip {
 	public static long starterId;
 
 
+	public static MyStorageMemory myStorageMemory;
+	
+	public static Peer myPeer;
 
+	public Gossip(Peer Peer,MyStorageMemory StorageMemory) {
+		super();
+		myPeer =Peer;
+		myStorageMemory = StorageMemory;
+		
+	}
+	
+	
 	public static long getPeerID() {
 		return peerID;
 	}
@@ -61,7 +79,7 @@ public class Gossip {
 	}
 
 
-	public void gossipStart(){
+	public void gossipStart() throws InterruptedException{
 
 		//ganda for en que cada um espera um valor dependedo do seu id para 
 
@@ -124,12 +142,18 @@ public class Gossip {
 
 			
 			//TODO GET DOS VALORES e set on users files actvUsers
-
+			float files = 0;
+			float users = 0;
+			float actvUsers = 0;
+			float NData = 0;
 			
 			//Chamar funçoes para get dos dados para gossio
+			users= myStorageMemory.getNumberOfRootMetaFilesImResponsibleFor();
+			files = (float) myStorageMemory.getNumStoredFiles();
 			
+			NData = (float) myStorageMemory.getNumMBFiles();
 			
-			
+			actvUsers = 1;
 			//TODO 
 			
 
@@ -442,7 +466,9 @@ public class Gossip {
 				dto.setNactivU(gossip.getNactivU());
 
 				dto.setIterc(c+1);
-				usr.SendOne(dto);
+			
+				//TODO
+				SendOne(dto);
 
 				Thread.sleep(ITERACTIME);
 				System.out.println( "2º - for end");
@@ -503,36 +529,36 @@ public class Gossip {
 	
 	//TODO -----------------------------------------SEND TO ONE-----------------------------------------------------
 	
-//	private void SendOne(GossipDTO dto)
-//	{
-//		RequestP2PConfiguration requestP2PConfiguration = new RequestP2PConfiguration( 1, 10, 0 );
-//		Random RND = new Random();
-//
-//		//TOOD n ta a dar...
-//		while(peer.getPeerBean().getStorage().findPeerIDForResponsibleContent(Number160.createHash(RND.nextInt()))== peer.getPeerID()){
-//			RND = new Random();
-//		}
-//
-//		FutureDHT futureDHT = peer.send(Number160.createHash(RND.nextInt())) 
-//				.setObject(dto).setRequestP2PConfiguration(requestP2PConfiguration).start();
-//
-//		futureDHT.awaitUninterruptibly();
-//		for(Object object:futureDHT.getRawDirectData2().values())
-//		{
-//			if (object.getClass().equals(GossipDTO.class)){
-//
-//				//TODO estou atrazado ..... posso adicionar apenas DTO á lista é que valor superior será detectado
-//				//TODO possivel soluçao com flag..mais segura.
-//
-//				lock.lock();
-//				gossipList.add((GossipDTO) object);
-//				System.out.println("Recebi um estou atrazado/ no sou o mais alto");
-//				lock.unlock();
-//				continue;
-//			}
-//			System.out.println("got:"+ object);
-//		}
-//	}
+	private void SendOne(GossipDTO dto)
+	{
+		RequestP2PConfiguration requestP2PConfiguration = new RequestP2PConfiguration( 1, 10, 0 );
+		Random RND = new Random();
+
+		//TOOD n ta a dar...
+		while(myPeer.getPeerBean().getStorage().findPeerIDForResponsibleContent(Number160.createHash(RND.nextInt()))== myPeer.getPeerID()){
+			RND = new Random();
+		}
+
+		FutureDHT futureDHT = myPeer.send(Number160.createHash(RND.nextInt())) 
+				.setObject(dto).setRequestP2PConfiguration(requestP2PConfiguration).start();
+
+		futureDHT.awaitUninterruptibly();
+		for(Object object:futureDHT.getRawDirectData2().values())
+		{
+			if (object.getClass().equals(GossipDTO.class)){
+
+				//TODO estou atrazado ..... posso adicionar apenas DTO á lista é que valor superior será detectado
+				//TODO possivel soluçao com flag..mais segura.
+
+				lock.lock();
+				gossipList.add((GossipDTO) object);
+				System.out.println("Recebi um estou atrazado/ no sou o mais alto");
+				lock.unlock();
+				continue;
+			}
+			System.out.println("got:"+ object);
+		}
+	}
 
 
 	
@@ -644,6 +670,8 @@ public class Gossip {
 			
 		
 	}
+
+
 	
 	
 	

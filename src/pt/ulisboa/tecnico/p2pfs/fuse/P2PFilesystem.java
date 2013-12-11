@@ -41,7 +41,6 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		this.kademlia = new Kademlia(id, this);
 		
 		
-		
 	}
 	
 	
