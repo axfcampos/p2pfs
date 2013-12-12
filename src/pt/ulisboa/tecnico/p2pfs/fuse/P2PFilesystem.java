@@ -142,6 +142,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 	@Override
 	public int getattr(final String path, final StatWrapper stat)
 	{
+		
 		if(rootDirectory.find(path) instanceof MemoryFile && !path.contains("/.")) {
 			
 			MemoryFile file = (MemoryFile) rootDirectory.find(path);
@@ -354,6 +355,10 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			return -ErrorCodes.ENOENT();
 		}
 		p.delete();
+		
+		if(path.contains("/."))
+			return 0;
+		
 		try {
 			kademlia.removeFile(path);
 			
@@ -386,6 +391,9 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 	@Override
 	public int release(final String path, final FileInfoWrapper info)
 	{
+		if(path.contains("/."))
+			return 0;
+		
 		
 		String str = new String( ((MemoryFile)rootDirectory.find(path)).
 								getContents().array(), Charset.forName("UTF-8") );
@@ -537,7 +545,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
     		if((input.split(" "))[0].equals("put") && (input.split(" ")).length == 3){
     			
     			//faz put
-    			this.kademlia.store(input.split(" ")[1], input.split(" ")[2]);
+    			this.kademlia.store(input.split(" ")[1], new FuseKademliaFileDto(1, 1, input.split(" ")[2]));
     			
     		}else{
     		if((input.split(" "))[0].equals("get") && (input.split(" ")).length == 2){

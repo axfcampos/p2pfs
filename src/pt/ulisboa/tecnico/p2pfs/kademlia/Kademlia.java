@@ -25,11 +25,13 @@ import pt.ulisboa.tecnico.p2pfs.gossip.GossipDTO;
 
 public class Kademlia {
 	
-	static int PORT = 9102;
+	private static final int PORT = 9102;
 	
-	static Number160 ID = new Number160(1);
+	private static final Number160 ID = new Number160(1);
 	
-	static String HOST = "localhost";
+	private static final String HOST = "localhost";
+	
+	private static final int CONTENT_MAX_SIZE = 50;
 	
 	String username;
 	long myId;
@@ -212,27 +214,21 @@ public class Kademlia {
 
 	public Object getFileObject(String path) throws ClassNotFoundException, IOException {
 		
-		Number160 location = Number160.createHash(username + "-" + path);
-		
-		FutureDHT futureDHT = me.get(location).start();
-        futureDHT.awaitUninterruptibly();
-        
-		return futureDHT.getData().getObject();
-		
+		return get(username + "-" + path);
 	}
 
 	public void createFile(String path) throws IOException {
 		
-		FutureDHT futureDHT = me.put(Number160.createHash(username + "-" + path))
-				 .setRefreshSeconds(2).setData(new Data(new FuseKademliaFileDto())).start();
+		FutureDHT futureDHT = me.put(Number160.createHash(username + "-" + path + ":part1"))
+				.setData(new Data(new FuseKademliaFileDto()))
+					.start().awaitUninterruptibly();
 		futureDHT.awaitUninterruptibly();
-       
+		
 	}
 	
 	public void removeFile(String path) throws ClassNotFoundException, IOException {
 		
-		FutureDHT futureDHT = me.remove(Number160.createHash(username + "-" + path)).start();
-		futureDHT.awaitUninterruptibly();
+		remove(username + "-" + path);
 		
 		String parentDir;
 		
@@ -243,7 +239,7 @@ public class Kademlia {
 		
 		System.out.println(parentDir);
 		
-		futureDHT = me.get(Number160.createHash(username + "-file-" + parentDir)).start();
+		FutureDHT futureDHT = me.get(Number160.createHash(username + "-file-" + parentDir)).start();
 		futureDHT.awaitUninterruptibly();
 		
 		FuseKademliaDto dto = (FuseKademliaDto) futureDHT.getData().getObject();
@@ -271,9 +267,7 @@ public class Kademlia {
 
 	public void updateFile(String path, FuseKademliaFileDto dto) throws IOException {
 		
-		FutureDHT futureDHT = me.put(Number160.createHash(username + "-" + path))
-				 .setRefreshSeconds(2).setData(new Data(dto)).start();
-		futureDHT.awaitUninterruptibly();
+		store(username + "-" + path, dto);
 		
 	}
 
@@ -308,8 +302,8 @@ public class Kademlia {
 		FutureDHT futureDHT = me.get(Number160.createHash(username + "-" + oldPath)).start();
 		futureDHT.awaitUninterruptibly();
 		
-		futureDHT = me.put(Number160.createHash(username + "-" + newPath))
-		 			.setRefreshSeconds(2).setData(new Data((FuseKademliaFileDto) futureDHT.getObject())).start();
+		store(username + "-" + newPath, (FuseKademliaFileDto) futureDHT.getObject());
+		
 		
 		futureDHT = me.remove(Number160.createHash(username + "-" + oldPath)).start();
 		futureDHT.awaitUninterruptibly();
@@ -343,23 +337,85 @@ public class Kademlia {
 
 	
 	//Para quando nao temos o FUSE a funcionar
-	public Object get(String name) throws ClassNotFoundException, IOException {
-	    FutureDHT futureDHT = me.get(Number160.createHash(name)).start();
+	public FuseKademliaFileDto get(String name) throws ClassNotFoundException, IOException {
+		
+		FutureDHT futureDHT = me.get(Number160.createHash(name + ":part1")).start();
 	    futureDHT.awaitUninterruptibly();
+	    
 	    if (futureDHT.isSuccess()) {
+	    	
+	    	FuseKademliaFileDto finalDto = (FuseKademliaFileDto) futureDHT.getData().getObject();
+	    	
+	    	int totalParts = finalDto.getTotalNumberParts();
+	    	int i;
+	    	
+	    	finalDto.setPartNumber(1);
+	    	finalDto.setTotalNumberParts(1);
+	    	
+	    	for (i = 2; i < (totalParts + 1); i++) {
+	    		
+	    		futureDHT = me.get(Number160.createHash(name + ":part" + i)).start();
+	    	    futureDHT.awaitUninterruptibly();
+	    	    
+	    	    if (futureDHT.isSuccess())
+	    	    	finalDto.setContent(finalDto.getContent() +
+	    	    				((FuseKademliaFileDto)futureDHT.getData().getObject()).getContent());
+	    		
+	    	}
+	    	
+	    	
 	
-	    	return futureDHT.getData().getObject();
+	    	return finalDto;
 	    }
 
-	    return "not found";
+	    return null;
     }
 
-	public void store(String key, Object value) throws IOException {
-        me.put(Number160.createHash(key)).setData(new Data(value)).start().awaitUninterruptibly();
+	// Just works with files!!!
+	public void store(String key, FuseKademliaFileDto value) throws IOException {
+		
+		int contentLength = value.getContent().length();
+		int aux = contentLength;
+		int i;
+		int total = contentLength / CONTENT_MAX_SIZE + 1;
+		
+		String subString;
+		
+		FutureDHT futureDHT;
+		
+		for(i = 0; contentLength > 0; i++, aux -= CONTENT_MAX_SIZE) {
+
+			if((i + 1) * CONTENT_MAX_SIZE < contentLength)
+				subString = value.getContent().substring(i * CONTENT_MAX_SIZE, ( i + 1) * CONTENT_MAX_SIZE);
+			else
+				if(i * CONTENT_MAX_SIZE < contentLength)
+					subString = value.getContent().substring(i * CONTENT_MAX_SIZE, contentLength - 1);
+				else
+					break;
+			
+			futureDHT = me.put(Number160.createHash(key + ":part" + (i+1)))
+							.setData(new Data(new FuseKademliaFileDto(i + 1, total, subString)))
+								.start().awaitUninterruptibly();
+			futureDHT.awaitUninterruptibly();
+		}
 	}
     
-    public void remove(String key) throws IOException {
-        me.remove(Number160.createHash(key));
+    public void remove(String name) throws IOException, ClassNotFoundException {
+    	FutureDHT futureDHT = me.get(Number160.createHash(name + ":part1")).start();
+	    futureDHT.awaitUninterruptibly();
+	    
+	    FuseKademliaFileDto dto = (FuseKademliaFileDto) futureDHT.getData().getObject();
+	    
+	    int totalParts = dto.getTotalNumberParts();
+    	int i;
+    	
+    	for (i = 1; i < (totalParts + 1); i++) {
+    		
+    		futureDHT = me.remove(Number160.createHash(name + ":part" + i)).start();
+    	    futureDHT.awaitUninterruptibly();
+    	    
+    	}
+    	
     }
 
 }
