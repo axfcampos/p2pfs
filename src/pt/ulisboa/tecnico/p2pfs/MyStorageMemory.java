@@ -13,7 +13,7 @@ import net.tomp2p.storage.StorageMemory;
 
 public class MyStorageMemory extends StorageMemory{
 	
-	private final StatAggregator stat = new StatAggregator();
+//	private final StatAggregator stat = new StatAggregator();
 	private Number160 myOwnerPeerId;
 	
 	public MyStorageMemory(Number160 myOwnerPeerId){
@@ -23,62 +23,62 @@ public class MyStorageMemory extends StorageMemory{
 	
 	@Override
 	public boolean put(Number160 locationKey, Number160 domainKey, Number160 contentKey, Data value){
-		boolean ret = super.put(locationKey, domainKey, contentKey, value);
+		return super.put(locationKey, domainKey, contentKey, value);
 	
-		try {
-			if(value.getObject() instanceof FuseKademliaDto){
-				
-				stat.addMBMeta(value.getData().length * 1000 * 1000); //Byte to MB... and not Byte to Mebibyte
-				
-			}else{
-			if(value.getObject() instanceof FuseKademliaFileDto){
-			
-				stat.addMBFiles(value.getData().length * 1000 * 1000);
-				stat.addFile((double) 1 / ((FuseKademliaFileDto) value.getObject()).getTotalNumberParts());
-				
-			}else{
-				System.out.println("@MyStorageMemory put: ERRO FICHEIRO RECEBIDO NAO E META NEM FILE");
-			}}
-			
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return ret;
+//		try {
+//			if(value.getObject() instanceof FuseKademliaDto){
+//				
+//				stat.addMBMeta(value.getData().length * 1000 * 1000); //Byte to MB... and not Byte to Mebibyte
+//				
+//			}else{
+//			if(value.getObject() instanceof FuseKademliaFileDto){
+//			
+//				stat.addMBFiles(value.getData().length * 1000 * 1000);
+//				stat.addFile((double) 1 / ((FuseKademliaFileDto) value.getObject()).getTotalNumberParts());
+//				
+//			}else{
+//				System.out.println("@MyStorageMemory put: ERRO FICHEIRO RECEBIDO NAO E META NEM FILE");
+//			}}
+//			
+//		} catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		return ret;
 	}
 	
 	@Override
 	public Data remove(Number160 locationKey, Number160 domainKey, Number160 contentKey){
-		Data ret = super.remove(locationKey, domainKey, contentKey);
+		return super.remove(locationKey, domainKey, contentKey);
 		
-		try {
-			if(ret.getObject() instanceof FuseKademliaDto){
-				
-				stat.remMBMeta(ret.getData().length * 1000 * 1000); //Byte to MB... and not Byte to Mebibyte
-				
-			}else{
-			if(ret.getObject() instanceof FuseKademliaFileDto){
-			
-				stat.remMBFiles(ret.getData().length * 1000 * 1000);
-				stat.remFile((double) 1 / ((FuseKademliaFileDto) ret.getObject()).getTotalNumberParts());
-				
-			}else{
-				System.out.println("@MyStorageMemory remove: ERRO FICHEIRO RECEBIDO NAO E META NEM FILE");
-			}}
-			
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return ret;
+//		try {
+//			if(ret.getObject() instanceof FuseKademliaDto){
+//				
+//				stat.remMBMeta(ret.getData().length * 1000 * 1000); //Byte to MB... and not Byte to Mebibyte
+//				
+//			}else{
+//			if(ret.getObject() instanceof FuseKademliaFileDto){
+//			
+//				stat.remMBFiles(ret.getData().length * 1000 * 1000);
+//				stat.remFile((double) 1 / ((FuseKademliaFileDto) ret.getObject()).getTotalNumberParts());
+//				
+//			}else{
+//				System.out.println("@MyStorageMemory remove: ERRO FICHEIRO RECEBIDO NAO E META NEM FILE");
+//			}}
+//			
+//		} catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		return ret;
 	}
 
 	public int getNumberOfRootMetaFilesImResponsibleFor(){
@@ -109,58 +109,51 @@ public class MyStorageMemory extends StorageMemory{
 		return rootMetasIOwn;
 	}
 	
-	public double getNumStoredFiles(){
-		return stat.getNumStoredFiles();
-	}
-	public double getNumMBFiles(){
-		return stat.getNumMBFiles();
-	}
-	public double getNumMBMeta(){
-		return stat.getNumMBMeta();
-	}
-	public void printStats(){
-		System.out.println(stat.toString());
-	}
-	private class StatAggregator{
+	public StatAggregator getAggStatsFiles(){
+//		return stat.getNumStoredFiles();
+		NavigableMap<Number480, Data> map = super.map();
+		double nFiles = 0.0;
+		double nMBFiles = 0.0;
+		double nMBMeta = 0.0;
 		
-		private double nFiles;
-		private double nMBFiles;
-		private double nMBMeta;
-
-		public void addMBMeta(double mb) {
-			this.nMBMeta += mb;
+		for(Number480 n : map.descendingKeySet()){
+			Data d = map.get(n);
+			try{
+				if(d.getObject() instanceof FuseKademliaFileDto){
+					
+					nFiles += (double) 1 / ((FuseKademliaFileDto) d.getObject()).getTotalNumberParts();
+					nMBFiles += (double) d.getData().length * 1000 * 1000;
+				}else{
+				if(d.getObject() instanceof FuseKademliaDto){
+					
+					nMBMeta = (double) d.getData().length * 1000 * 1000;
+					
+				}else{
+					System.out.println("Erro: foi encontrado um objecto que nao e FuseDTO");
+				}}
+			}catch (ClassNotFoundException e){
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
-		public void remMBMeta(double mb){
-			nMBMeta -= mb;
-		}
-		public StatAggregator(){
-			nFiles = 0;
-			nMBFiles = 0;
-			nMBMeta = 0;
-		}
-		public void addFile(double part){
-			nFiles += part;
-		}
-		public void remFile(double part){
-			nFiles -= part;
-		}
-		public void addMBFiles(double mb){
-			nMBFiles += mb;
-		}
-		public void remMBFiles(double mb){	
-			nMBFiles -= mb;
-		}
-		public double getNumStoredFiles(){
-			return nFiles;
-		}
-		public double getNumMBFiles(){	
-			return nMBFiles;
-		}
-		public double getNumMBMeta() {
-			return nMBMeta;
-		}
-		public String toString(){
-			return "nFiles: " + nFiles + "\n nMBFIles: " + nMBFiles + "\n nMBMeta: " + nMBMeta + "\n"; 
-		}
+		
+		StatAggregator stat = new StatAggregator();
+		stat.setMBFiles(nMBFiles);
+		stat.setMBMeta(nMBMeta);
+		stat.setNumFile(nFiles);
+		return stat;
 	}
+//	public double getNumMBFiles(){
+////		return stat.getNumMBFiles();
+//	}
+//	public double getNumMBMeta(){
+////		return stat.getNumMBMeta();
+//	}
+//	public void printStats(){
+////		System.out.println(stat.toString());
+//	}
+
 }
