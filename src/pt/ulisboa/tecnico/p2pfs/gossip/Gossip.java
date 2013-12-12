@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.p2pfs.gossip;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -29,8 +30,8 @@ public class Gossip implements Runnable {
 	public static float NActiveUsers=0;
 	public static float AVGNFiles=0;
 	public static float AVGNData=0;
-	
-	
+
+
 	public static long peerID;
 
 	public static Lock lock= new ReentrantLock();
@@ -49,7 +50,7 @@ public class Gossip implements Runnable {
 	public float um = 1;
 
 
-//	public static  int gossipRound = 1;
+	//	public static  int gossipRound = 1;
 	public static boolean changeGossipID= false;
 	public static boolean gossipStart = false;
 	public static boolean iniciator = true;
@@ -60,7 +61,7 @@ public class Gossip implements Runnable {
 
 
 	public static MyStorageMemory myStorageMemory;
-	
+
 	public static Peer myPeer;
 
 	public Gossip(Kademlia kademlia, Peer Peer,MyStorageMemory StorageMemory,long peerId) {
@@ -70,8 +71,8 @@ public class Gossip implements Runnable {
 		myStorageMemory = StorageMemory;
 		setPeerID(peerId);
 	}
-	
-	
+
+
 	public static long getPeerID() {
 		return peerID;
 	}
@@ -111,15 +112,15 @@ public class Gossip implements Runnable {
 
 		int time;
 		// for sobre o mesmo id
-	//	for (int a = 1 ; a < 3; a ++ ){
-			
-			
-			while(true){
+		//	for (int a = 1 ; a < 3; a ++ ){
+
+
+		while(true){
 			///////////////////////////////////////////
 			//SINC
-			
-			
-			
+
+
+
 			Calendar calendar = Calendar.getInstance();
 
 			int minutes = calendar.get(Calendar.MINUTE);
@@ -149,47 +150,47 @@ public class Gossip implements Runnable {
 
 			//////////////////////////////////////////
 
-			
+
 			//TODO GET DOS VALORES e set on users files actvUsers
 			float files = 0;
 			float users = 0;
 			float actvUsers = 0;
 			float NData = 0;
-			
+
 			//Chamar funçoes para get dos dados para gossio
 			System.out.println("Get dos Dados");
-			
+
 			users= myStorageMemory.getNumberOfRootMetaFilesImResponsibleFor();
 			System.out.println("myStorageMemory.getNumberOfRootMetaFilesImResponsibleFor()=" +users);
-			
-			
+
+
 			StatAggregator statts =  myStorageMemory.getAggStatsFiles();
-			
-			
+
+
 			files = (float)statts.getNumStoredFiles();
-			
-			double t =  statts.getNumMBFiles();
-			
-			System.out.println("myStorageMemory.getNumStoredFiles()"+ t);
-			
+
+			//			double t =  statts.getNumMBFiles();
+			//			
+			//			System.out.println("myStorageMemory.getNumStoredFiles()"+ t);
+
 			System.out.println("myStorageMemory.getNumStoredFiles()"+ files);
-			
-			
+
+
 			//TODO Stats METadados
 			NData = (float) statts.getNumMBFiles();
-			
+
 			System.out.println("myStorageMemory.getNumMBFiles()="+NData);
-			
+
 			if(p2pKad.isMounted()){
 				actvUsers = 1;
 			}else{
 				actvUsers = 0;
 			}
-			
+
 			System.out.println("p2pKad.isMounted()"+p2pKad.isMounted());
-			
+
 			// TODO 
-			
+
 			gossip = new GossipDTO(getPeerID());
 			gossip.getNusers().setValor(users);
 			gossip.getNusers().setPeso(um);
@@ -200,12 +201,12 @@ public class Gossip implements Runnable {
 			gossip.getNnode().setValor(um);
 			gossip.getNnode().setPeso(um);
 
-			
+
 			gossip.getAvgData().setValor(NData);
 			gossip.getAvgData().setPeso(um);
-			
+
 			gossip.getNactivU().setValor(actvUsers);
-			
+
 
 			if(gossip.getNactivU().getValor() == 0){
 				gossip.getNactivU().setPeso(0);
@@ -214,14 +215,14 @@ public class Gossip implements Runnable {
 			}
 
 			starterId = getPeerID();
-			
+
 			long waitTime = (getPeerID());
-			
+
 			if(waitTime  < 0) waitTime *= -1;	
 			System.out.println("::" + waitTime);
 			waitTime = waitTime/10000000;
 			waitTime = waitTime/100000000;
-			
+
 			System.out.println("::" + waitTime);			
 			System.out.println( "I will wait "+ waitTime);
 
@@ -256,7 +257,7 @@ public class Gossip implements Runnable {
 				dto.setNactivU(gossip.getNactivU());
 				dto.setAvgfiles(gossip.getAvgfiles());
 				dto.setAvgData(gossip.getAvgData());
-				
+
 				dto.setIterc(c);
 
 				gossipList.add(dto);
@@ -267,7 +268,7 @@ public class Gossip implements Runnable {
 
 				pesoData=0;
 				avgData=0;
-				
+
 				pesoUsers=0;
 				avgUser=0;
 
@@ -283,17 +284,17 @@ public class Gossip implements Runnable {
 
 					System.out.println("B-"+ b + "---" + gossipList.get(b).getNodeId());
 
-//					if (gossipList.get(b).getRoundId() > gossipRound){
-//						System.out.println( "inside firts if");
-//						changeGossipID = true;
-//						break ;
-//					}
-//
-//					//Não conto com contagens anteriores
-//					if (gossipList.get(b).getRoundId() < gossipRound){
-//						System.out.println( "inside second if");
-//						continue;
-//					}
+					//					if (gossipList.get(b).getRoundId() > gossipRound){
+					//						System.out.println( "inside firts if");
+					//						changeGossipID = true;
+					//						break ;
+					//					}
+					//
+					//					//Não conto com contagens anteriores
+					//					if (gossipList.get(b).getRoundId() < gossipRound){
+					//						System.out.println( "inside second if");
+					//						continue;
+					//					}
 
 					System.out.println("IF---"+ gossipList.get(b).getNodeId() + "---" +starterId);
 					if(gossipList.get(b).getNodeId() < starterId){
@@ -338,11 +339,11 @@ public class Gossip implements Runnable {
 
 						gossip.getAvgData().setValor((float) (NData/(Math.pow(2,iteracoes))));
 						gossip.getAvgData().setPeso((float) (um/( Math.pow(2,iteracoes))));
-						
-						
-						
+
+
+
 						dto = new GossipDTO(getPeerID());
-						
+
 						dto.setNnode(gossip.getNnode());
 						dto.setNusers(gossip.getNusers());
 						dto.setNactivU(gossip.getNactivU());
@@ -350,7 +351,7 @@ public class Gossip implements Runnable {
 						dto.setAvgData(gossip.getAvgData());
 
 						gossipList.add(dto);
-						
+
 						System.out.println("SUM "+n.getAvgfiles().getValor()+"--"+gossip.getAvgfiles().getValor());
 						System.out.println("SUM "+n.getAvgfiles().getPeso()+"--"+gossip.getAvgfiles().getPeso());
 
@@ -372,15 +373,15 @@ public class Gossip implements Runnable {
 						avgAUsers=n.getNactivU().getValor() + gossip.getNactivU().getValor();
 						pesoAUsers=n.getNactivU().getPeso() + gossip.getNactivU().getPeso();
 
-						
+
 						avgData = n.getAvgData().getValor() + gossip.getAvgData().getValor();
 						pesoData = n.getAvgData().getPeso() + gossip.getAvgData().getPeso();
-						
-						
+
+
 						System.out.println("Conflito result"+avgFiles+"--"+avgUser+"--"+avgNode);
 						System.out.println("Conflito result"+pesoFiles+"--"+pesoUsers+"--"+pesoNode);
 						starterId = n.getNodeId();
-						
+
 						break;
 
 					}
@@ -472,7 +473,7 @@ public class Gossip implements Runnable {
 					avgData = avgData +  gossipList.get(b).getAvgData().getValor();
 
 					pesoData = pesoData +  gossipList.get(b).getAvgData().getPeso();
-					
+
 					//TODO calculos para restantes e para o numero de nós
 				}
 
@@ -505,8 +506,8 @@ public class Gossip implements Runnable {
 
 				gossip.getAvgData().setValor(avgData/2);
 				gossip.getAvgData().setPeso(pesoData/2);
-				
-				
+
+
 				//TODO
 
 				System.out.println("New avg"+ gossip.getAvgfiles().getValor());
@@ -526,15 +527,15 @@ public class Gossip implements Runnable {
 
 				dto = new GossipDTO(getPeerID());
 				//TODO
-				
+
 				dto.setAvgfiles(gossip.getAvgfiles());
 				dto.setNusers(gossip.getNusers());
 				dto.setNnode(gossip.getNnode());
 				dto.setNactivU(gossip.getNactivU());
 				dto.setAvgData(gossip.getAvgData());
-				
+
 				dto.setIterc(c+1);
-			
+
 				//TODO
 				SendOne(dto);
 
@@ -554,53 +555,55 @@ public class Gossip implements Runnable {
 				continue;
 			}
 
-//			gossipRound++;
+			//			gossipRound++;
 
 
 			//TODO Actualiza estimativa
 
+
+			//	NNodes=0;
+			//		Nusers=0;
+			//		NActiveUsers=0;
+			//		AVGNFiles=0;
+			//		AVGNData=0;
+
+
+
+
 			
-		//	NNodes=0;
-//		Nusers=0;
-//		NActiveUsers=0;
-//		AVGNFiles=0;
-//		AVGNData=0;
+			calendar = Calendar.getInstance();
 			
-			
-			
-			
-			
-			String stats = "Stats \n";
-			
-			
+			String stats = "-----------Stats---------- \n";
+			stats= stats + ("-------Time::"+calendar.get(Calendar.HOUR)+"h:"+calendar.get(Calendar.MINUTE)+"m \n");
+
 			float nNodes = 1/((gossip.getNnode().getValor()) / gossip.getNnode().getPeso());
 			System.out.println( "Estimativa n nodes - " +nNodes);
 			NNodes = nNodes;
-			
-			stats= stats + ("Estimativa n nodes - " + nNodes + "\n");
-			
+
+			stats= stats + ("Number of node -: " + nNodes + "\n");
+
 			//stats.concat("Estimativa n nodes - " + nNodes);
-			
+
 			estimativa = (( gossip.getNusers().getValor()) / gossip.getNusers().getPeso())*nNodes;
 			System.out.println( "Estimativa Sum - users - " + (estimativa));
 			Nusers = estimativa;
-			stats= stats +("Estimativa Sum - users - " + (estimativa)+ "\n");
-				
+			stats= stats +("Number users - " + (estimativa)+ "\n");
+
 			estimativa = ( gossip.getAvgfiles().getValor()) / gossip.getAvgfiles().getPeso() ;
 			System.out.println( "Estimativa media avg-files - " + estimativa);
 			AVGNFiles = estimativa;
 			stats= stats + ("Estimativa media avg-files - " + AVGNFiles+ "\n");
-			
 
-			if((gossip.getNactivU().getValor()==0) && (gossip.getNactivU().getPeso()==0)){
+
+			if((gossip.getNactivU().getValor()==0) || (gossip.getNactivU().getPeso()==0)){
 				estimativa=0;	
-				
+
 				System.out.println( "Estimativa active users - " + estimativa);
-				NActiveUsers=1/estimativa;
-				
-				stats= stats +("Estimativa active users - " + NActiveUsers +"\n");
-			
-				
+				//NActiveUsers=1/estimativa;
+
+				stats= stats +("Estimativa active users - " + estimativa +"\n");
+
+
 			}else{
 				estimativa = (gossip.getNactivU().getValor())/ gossip.getNactivU().getPeso() ;
 				System.out.println( "Estimativa active users - " + 1/estimativa);
@@ -612,9 +615,28 @@ public class Gossip implements Runnable {
 			System.out.println( "Estimativa avg Data - " + estimativa);
 			AVGNFiles = estimativa;
 			stats= stats + ("Estimativa avg-DATA - " + AVGNFiles+ "MB \n");
-		
+
+
+			try{
+
+				File file = new File("/tmp/test/Stats");
+
+
+				if(file.exists()){	
+
+					if(file.delete()){
+						System.out.println(file.getName() + " is deleted!");
+					}else{
+						System.out.println("Delete operation is failed.");
+					}}
+			}catch(Exception e){
+
+				e.printStackTrace();
+			}
+
 			p2pKad.getFuse().getRoot().add(new MemoryFile("Stats",stats));
-			
+
+
 			System.out.println( "1º - for end");
 
 			lock.lock();
@@ -623,20 +645,20 @@ public class Gossip implements Runnable {
 		}
 
 	}
-	
-	
+
+
 	//TODO -----------------------------------------SEND TO ONE-----------------------------------------------------
-	
+
 	private void SendOne(GossipDTO dto)
 	{
 		RequestP2PConfiguration requestP2PConfiguration = new RequestP2PConfiguration( 1, 10, 0 );
 		Random RND = new Random();
 
-		
-//		//TOOD n ta a dar...
-//		while(myPeer.getPeerBean().getStorage().findPeerIDForResponsibleContent(Number160.createHash(RND.nextInt()))== myPeer.getPeerID()){
-//			RND = new Random();
-//		}
+
+		//		//TOOD n ta a dar...
+		//		while(myPeer.getPeerBean().getStorage().findPeerIDForResponsibleContent(Number160.createHash(RND.nextInt()))== myPeer.getPeerID()){
+		//			RND = new Random();
+		//		}
 
 		FutureDHT futureDHT = myPeer.send(Number160.createHash(RND.nextInt())) 
 				.setObject(dto).setRequestP2PConfiguration(requestP2PConfiguration).start();
@@ -660,120 +682,120 @@ public class Gossip implements Runnable {
 	}
 
 
-	
 
-	
-//TODO -------------------------------------------Setup reply----------------------------------------------------- 
-	
-//	
-//public void GossipStats(final int peerId) throws Exception {
-//
-//		//Make Peer	
-//		peer = new PeerMaker(Number160.createHash(peerId)).setPorts(6100 + peerId).setEnableIndirectReplication(true)
-//				.setReplicationRefreshMillis(10000).setEnableTracker(true).makeAndListen();
-//
-//		FutureBootstrap fb = peer.bootstrap().setBroadcast().setPorts(6101).start();
-//		fb.awaitUninterruptibly();
-//
-	
-	
-	
-	
-	
-//		peer.setObjectDataReply( new ObjectDataReply()
-//		{
-//
-//			//SetupReply
-//			@Override
-//			public Object reply( PeerAddress sender, Object request )throws Exception{
-//
-//				if (request.getClass() == GossipDTO.class){
-//					GossipDTO dto = (GossipDTO) request;
-//
-//					
-//					System.out.println("I'm "+ getPeerID() + " and I just got the message From nodeID " + dto.getNodeId()+"myGossip-"+gossipRound+ "gossip on DTO"+dto.getRoundId());
-//					
-//					if (dto.getNodeId() == getPeerID()){
-//						//TODO dava jeito...........
-//						System.out.println("1");
-//						return "receive from myshelf dont count";
-//					}
-//
-//					if(dto.getRoundId() < gossipRound ){
-//						
-//						System.out.println("2");
-//						
-//						//retorna ronda actual para actualizar
-//						//dto.setRoundId(gossipRound);
-//						
-//						return "Estas Atrazado";
-//					}
-//					
-//					if((gossipStart == false) && (dto.getRoundId() == gossipRound) ){
-//						System.out.println("3");
-//						
-//						if(	dto.getNodeId() > getPeerID())
-//						{
-//							System.out.println("3");
-//						//TODO devia ter sido eu a começar
-//							return "STOP";
-//						}
-//						
-//						gossipStart = true;
-//						gossipRound = dto.getRoundId();
-//						starterId = dto.getNodeId();
-//					}
-//					
-////					if(dto.getNodeId() > getPeerID() && dto.getRoundId() == gossipRound ){
-////						System.out.println("4");
-////						//TODO enviar DTO com estado actual para nó iniciar contagem
-////						
-////					return gossip;
-////					}
-//					
-//					lock.lock();
-//					gossipList.add(dto);
-//					lock.unlock();
-//					System.out.println("I'm "+ peerId + " and I just got the message From nodeID " + dto.getNodeId());
-//					return "--AKC--";
-//				}
-//
-//				return "--AKC -- Not receive a GossipDTO";
-//			}
-//		} );
-//
-//		if (fb.getBootstrapTo() != null) {
-//			peer.discover().setPeerAddress(fb.getBootstrapTo().iterator().next()).start().awaitUninterruptibly();
-//		}
-//	}
-	
-	
-		
+
+
+	//TODO -------------------------------------------Setup reply----------------------------------------------------- 
+
+	//	
+	//public void GossipStats(final int peerId) throws Exception {
+	//
+	//		//Make Peer	
+	//		peer = new PeerMaker(Number160.createHash(peerId)).setPorts(6100 + peerId).setEnableIndirectReplication(true)
+	//				.setReplicationRefreshMillis(10000).setEnableTracker(true).makeAndListen();
+	//
+	//		FutureBootstrap fb = peer.bootstrap().setBroadcast().setPorts(6101).start();
+	//		fb.awaitUninterruptibly();
+	//
+
+
+
+
+
+	//		peer.setObjectDataReply( new ObjectDataReply()
+	//		{
+	//
+	//			//SetupReply
+	//			@Override
+	//			public Object reply( PeerAddress sender, Object request )throws Exception{
+	//
+	//				if (request.getClass() == GossipDTO.class){
+	//					GossipDTO dto = (GossipDTO) request;
+	//
+	//					
+	//					System.out.println("I'm "+ getPeerID() + " and I just got the message From nodeID " + dto.getNodeId()+"myGossip-"+gossipRound+ "gossip on DTO"+dto.getRoundId());
+	//					
+	//					if (dto.getNodeId() == getPeerID()){
+	//						//TODO dava jeito...........
+	//						System.out.println("1");
+	//						return "receive from myshelf dont count";
+	//					}
+	//
+	//					if(dto.getRoundId() < gossipRound ){
+	//						
+	//						System.out.println("2");
+	//						
+	//						//retorna ronda actual para actualizar
+	//						//dto.setRoundId(gossipRound);
+	//						
+	//						return "Estas Atrazado";
+	//					}
+	//					
+	//					if((gossipStart == false) && (dto.getRoundId() == gossipRound) ){
+	//						System.out.println("3");
+	//						
+	//						if(	dto.getNodeId() > getPeerID())
+	//						{
+	//							System.out.println("3");
+	//						//TODO devia ter sido eu a começar
+	//							return "STOP";
+	//						}
+	//						
+	//						gossipStart = true;
+	//						gossipRound = dto.getRoundId();
+	//						starterId = dto.getNodeId();
+	//					}
+	//					
+	////					if(dto.getNodeId() > getPeerID() && dto.getRoundId() == gossipRound ){
+	////						System.out.println("4");
+	////						//TODO enviar DTO com estado actual para nó iniciar contagem
+	////						
+	////					return gossip;
+	////					}
+	//					
+	//					lock.lock();
+	//					gossipList.add(dto);
+	//					lock.unlock();
+	//					System.out.println("I'm "+ peerId + " and I just got the message From nodeID " + dto.getNodeId());
+	//					return "--AKC--";
+	//				}
+	//
+	//				return "--AKC -- Not receive a GossipDTO";
+	//			}
+	//		} );
+	//
+	//		if (fb.getBootstrapTo() != null) {
+	//			peer.discover().setPeerAddress(fb.getBootstrapTo().iterator().next()).start().awaitUninterruptibly();
+	//		}
+	//	}
+
+
+
 	public void printStats(){
-		
-		
+
+
 		System.out.println("Number of Nodes on P2PFS" + NNodes );	
 		System.out.println("Number of total Nusers on P2PFS " + Nusers );	
 		System.out.println("Number of Active Users on P2PFS" + NActiveUsers );	
 		System.out.println("AVGN Files on P2PFS" + AVGNFiles );	
 		System.out.println("AVGN Data " + AVGNData );	
-	
-		
-		
-//PRINT
-//		public static long NNodes=0;
-//		public static long Nusers=0;
-//		public static long NActiveUsers=0;
-//		public static long AVGNFiles=0;
-//		public static long AVGNData=0;
-			
-		
+
+
+
+		//PRINT
+		//		public static long NNodes=0;
+		//		public static long Nusers=0;
+		//		public static long NActiveUsers=0;
+		//		public static long AVGNFiles=0;
+		//		public static long AVGNData=0;
+
+
 	}
 
 
 	@Override
 	public void run() {
-		
+
 		try {
 			gossipStart();
 		} catch (InterruptedException e) {
@@ -781,6 +803,6 @@ public class Gossip implements Runnable {
 			e.printStackTrace();
 		}
 		// TODO Auto-generated method stub
-		
+
 	}	
 }

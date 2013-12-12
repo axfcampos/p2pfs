@@ -530,7 +530,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
     		}else{
     		if((input.split(" "))[0].equals("mystats") && (input.split(" ")).length == 1){
     			
-    			kademlia.getStorageMemory().printStats();
+    			kademlia.getStorageMemory().getAggStatsFiles().toString();
     		}else{
     			System.out.println("Error: malformed input, type 'help' for commands");
     		}}}}}
