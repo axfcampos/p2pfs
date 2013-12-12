@@ -15,14 +15,16 @@ public class GossipDTO implements Serializable {
 	public GossipClass AvgData;
 		
 //	public int roundId;
+	public long starterId ;
 	public long nodeId;
 	public int iterc;
 	
 //	public GossipDTO(int roundId, long l) {
-	public GossipDTO(long l) {
+	public GossipDTO(long l,long nodeId) {
 		super();
 	//	this.roundId = roundId;
-		this.nodeId = l;
+		this.starterId = l;
+		this.nodeId= nodeId;
 		
 		Nnode = new GossipClass(0,0);
 		Nusers = new GossipClass(0,0);
@@ -39,6 +41,16 @@ public class GossipDTO implements Serializable {
 //	public void setRoundId(int roundId) {
 //		this.roundId = roundId;
 //	}
+
+	public long getStarterId() {
+		return starterId;
+	}
+
+
+	public void setStarterId(long starterId) {
+		this.starterId = starterId;
+	}
+
 
 	public int getIterc() {
 		return iterc;
