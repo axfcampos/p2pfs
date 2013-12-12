@@ -423,6 +423,19 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		this.log(true).mount(path);
 	}
 	
+	public void removeStats() {
+		
+		try{
+		rootDirectory.find("/Stats").delete();
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			System.out.println("Statst n exist \n");
+			
+		}
+	}
+	
+	
 	public static void main(final String... args) throws FuseException, IOException, ClassNotFoundException {
 		
 //		new P2PFilesystem(args[0]).log(true).mount(args[1]);

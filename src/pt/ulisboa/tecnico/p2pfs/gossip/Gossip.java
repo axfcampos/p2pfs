@@ -146,7 +146,7 @@ public class Gossip implements Runnable {
 
 			}
 
-			System.out.println("out");
+			System.out.println("Start Gossip");
 
 			//////////////////////////////////////////
 
@@ -158,10 +158,10 @@ public class Gossip implements Runnable {
 			float NData = 0;
 
 			//Chamar funçoes para get dos dados para gossio
-			System.out.println("Get dos Dados");
+//			System.out.println("Get dos Dados");
 
 			users= myStorageMemory.getNumberOfRootMetaFilesImResponsibleFor();
-			System.out.println("myStorageMemory.getNumberOfRootMetaFilesImResponsibleFor()=" +users);
+//			System.out.println("myStorageMemory.getNumberOfRootMetaFilesImResponsibleFor()=" +users);
 
 
 			StatAggregator statts =  myStorageMemory.getAggStatsFiles();
@@ -173,13 +173,13 @@ public class Gossip implements Runnable {
 			//			
 			//			System.out.println("myStorageMemory.getNumStoredFiles()"+ t);
 
-			System.out.println("myStorageMemory.getNumStoredFiles()"+ files);
+//			System.out.println("myStorageMemory.getNumStoredFiles()"+ files);
 
 
 			//TODO Stats METadados
 			NData = (float) statts.getNumMBFiles();
 
-			System.out.println("myStorageMemory.getNumMBFiles()="+NData);
+//			System.out.println("myStorageMemory.getNumMBFiles()="+NData);
 			mounted = p2pKad.isMounted();
 			
 			if(p2pKad.isMounted()){
@@ -188,7 +188,7 @@ public class Gossip implements Runnable {
 				actvUsers = 0;
 			}
 
-			System.out.println("p2pKad.isMounted()"+p2pKad.isMounted());
+//			System.out.println("p2pKad.isMounted()"+p2pKad.isMounted());
 
 			// TODO 
 
@@ -224,8 +224,8 @@ public class Gossip implements Runnable {
 //			waitTime = waitTime/10000000;
 			waitTime = (waitTime*4)* 1000;
 
-			System.out.println("::" + waitTime);			
-			System.out.println( "I will wait "+ waitTime);
+//			System.out.println("::" + waitTime);			
+//			System.out.println( "I will wait "+ waitTime);
 
 			gossipStart = false;
 			//TODO tempo de espera depend do id
@@ -235,7 +235,7 @@ public class Gossip implements Runnable {
 				System.out.println("time"+ time);
 
 				if(gossipStart){
-					System.out.println("receive a DTO i will start- valor zero");
+//					System.out.println("receive a DTO i will start- valor zero");
 					iniciator = false;
 					//para os couts
 					gossip.getNnode().setValor(0);
@@ -247,7 +247,7 @@ public class Gossip implements Runnable {
 
 			for (int c = 0 ; c < NITERACOES; c ++ ){
 
-				System.out.println( "2º - for begin");
+//				System.out.println( "2º - for begin");
 
 				lock.lock();				
 				GossipDTO dto = new GossipDTO(starterId,getPeerID());
@@ -283,7 +283,7 @@ public class Gossip implements Runnable {
 
 				for (b = 0; b < gossipList.size(); b++){
 
-					System.out.println("b="+b+"::StarterId received =" + gossipList.get(b).getStarterId()+"From "+  gossipList.get(b).getNodeId());
+//					System.out.println("b="+b+"::StarterId received =" + gossipList.get(b).getStarterId()+"From "+  gossipList.get(b).getNodeId());
 
 					//					if (gossipList.get(b).getRoundId() > gossipRound){
 					//						System.out.println( "inside firts if");
@@ -293,33 +293,33 @@ public class Gossip implements Runnable {
 					//
 					//Não conto com contagens anteriores
 					if ((gossipList.get(b).getStarterId() > starterId)){
-						System.out.println( "Peer id superior:" + gossipList.get(b).getStarterId()+ ">" + starterId);
+//						System.out.println( "Peer id superior:" + gossipList.get(b).getStarterId()+ ">" + starterId);
 
 						continue;
 					}
 
-					System.out.println("IF "+ gossipList.get(b).getStarterId() + "<<" +starterId);
+//					System.out.println("IF "+ gossipList.get(b).getStarterId() + "<<" +starterId);
 					if(gossipList.get(b).getStarterId() < starterId){
 						//TODO conflito de iniciaçção
 
 
-						System.out.println("Conflito continua apenas o menor id");
+//						System.out.println("Conflito continua apenas o menor id");
 						GossipDTO n = gossipList.get(b);
 
 						starterId = n.getStarterId();
-						System.out.println("interc"+ n.getIterc()+ "---"+ c);
+//						System.out.println("interc"+ n.getIterc()+ "---"+ c);
 						int iteracoes= n.getIterc();
 
 						gossipList.clear();
 						gossipList.add(n);
 						//Faz get dos valores de novo.
 
-						System.out.println("//"+( Math.pow(2,iteracoes)));
-						System.out.println("users"+users);
-						System.out.println("files"+files);
+//						System.out.println("//"+( Math.pow(2,iteracoes)));
+//						System.out.println("users"+users);
+//						System.out.println("files"+files);
 
-						gossip.getNusers().setValor((float) (users/( Math.pow(2,iteracoes))));
-						gossip.getNusers().setPeso((float) (um/( Math.pow(2,iteracoes))));
+						gossip.getNusers().setValor((float) (users/ (Math.pow(2,iteracoes))));
+						gossip.getNusers().setPeso((float) (um/ (Math.pow(2,iteracoes))));
 
 
 						gossip.getNnode().setValor(0);
@@ -334,9 +334,9 @@ public class Gossip implements Runnable {
 							gossip.getNactivU().setPeso(0);
 						}
 
-						System.out.println("gossip.getNactivU()"+ gossip.getNactivU().getPeso());
-
-						System.out.println("interc"+ n.getIterc()+ "---"+ c);
+//						System.out.println("gossip.getNactivU()"+ gossip.getNactivU().getPeso());
+//
+//						System.out.println("interc"+ n.getIterc()+ "---"+ c);
 
 						gossip.getAvgfiles().setValor((float) (files/ (Math.pow(2,iteracoes))));
 						gossip.getAvgfiles().setPeso((float) (um/( Math.pow(2,iteracoes))));
@@ -356,15 +356,15 @@ public class Gossip implements Runnable {
 
 						gossipList.add(dto);
 
-						System.out.println("SUM "+n.getAvgfiles().getValor()+"--"+gossip.getAvgfiles().getValor());
-						System.out.println("SUM "+n.getAvgfiles().getPeso()+"--"+gossip.getAvgfiles().getPeso());
+//						System.out.println("SUM "+n.getAvgfiles().getValor()+"--"+gossip.getAvgfiles().getValor());
+//						System.out.println("SUM "+n.getAvgfiles().getPeso()+"--"+gossip.getAvgfiles().getPeso());
 
 						avgFiles = n.getAvgfiles().getValor() + gossip.getAvgfiles().getValor();
 						pesoFiles = n.getAvgfiles().getPeso() + gossip.getAvgfiles().getPeso();
 
 
-						System.out.println("SUM "+n.getNusers().getValor()+"--"+ gossip.getNusers().getValor());
-						System.out.println("SUM "+n.getNusers().getPeso()+"--"+gossip.getNusers().getPeso());
+//						System.out.println("SUM "+n.getNusers().getValor()+"--"+ gossip.getNusers().getValor());
+//						System.out.println("SUM "+n.getNusers().getPeso()+"--"+gossip.getNusers().getPeso());
 
 						avgUser = n.getNusers().getValor() + gossip.getNusers().getValor();
 						pesoUsers = n.getNusers().getPeso() + gossip.getNusers().getPeso();
@@ -382,8 +382,8 @@ public class Gossip implements Runnable {
 						pesoData = n.getAvgData().getPeso() + gossip.getAvgData().getPeso();
 
 
-						System.out.println("Conflito result"+avgFiles+"--"+avgUser+"--"+avgNode);
-						System.out.println("Conflito result"+pesoFiles+"--"+pesoUsers+"--"+pesoNode);
+//						System.out.println("Conflito result"+avgFiles+"--"+avgUser+"--"+avgNode);
+//						System.out.println("Conflito result"+pesoFiles+"--"+pesoUsers+"--"+pesoNode);
 
 						break;
 
@@ -392,8 +392,8 @@ public class Gossip implements Runnable {
 
 					//C poden ser diferentes
 
-					int dif=0;
-					System.out.println("-c-"+ c + "cNode"+ gossipList.get(b).getIterc() );
+//					int dif=0;
+//					System.out.println("-c-"+ c + "cNode"+ gossipList.get(b).getIterc() );
 
 
 //					if(c > gossipList.get(b).getIterc()){
@@ -450,28 +450,28 @@ public class Gossip implements Runnable {
 
 					//TODO
 
-					System.out.println( "2º - for begin");
-					//faz calculos e guarda novos valores  
-					System.out.println("Somando--avgFiles" + gossipList.get(b).getAvgfiles().getValor());
+//					System.out.println( "2º - for begin");
+//					//faz calculos e guarda novos valores  
+//					System.out.println("Somando--avgFiles" + gossipList.get(b).getAvgfiles().getValor());
 					avgFiles = avgFiles + gossipList.get(b).getAvgfiles().getValor();
-					System.out.println("Somando--pesoFiles" + gossipList.get(b).getAvgfiles().getPeso());
+//					System.out.println("Somando--pesoFiles" + gossipList.get(b).getAvgfiles().getPeso());
 					pesoFiles  = pesoFiles  + gossipList.get(b).getAvgfiles().getPeso();
 
-					System.out.println("Somando--Users" + gossipList.get(b).getNusers().getValor());
+//					System.out.println("Somando--Users" + gossipList.get(b).getNusers().getValor());
 					avgUser = avgUser + gossipList.get(b).getNusers().getValor();
-					System.out.println("Somando--Users peso" + gossipList.get(b).getNusers().getPeso());
+//					System.out.println("Somando--Users peso" + gossipList.get(b).getNusers().getPeso());
 					pesoUsers  = pesoUsers  + gossipList.get(b).getNusers().getPeso();
 
 
-					System.out.println("Somando--getNnode" + gossipList.get(b).getNnode().getValor());
+//					System.out.println("Somando--getNnode" + gossipList.get(b).getNnode().getValor());
 					avgNode = avgNode + gossipList.get(b).getNnode().getValor();
-					System.out.println("Somando--peso" + gossipList.get(b).getNnode().getPeso());
+//					System.out.println("Somando--peso" + gossipList.get(b).getNnode().getPeso());
 					pesoNode  = pesoNode  + gossipList.get(b).getNnode().getPeso();
 
 
-					System.out.println("Somando--getNactivU" + gossipList.get(b).getNactivU().getValor());
+//					System.out.println("Somando--getNactivU" + gossipList.get(b).getNactivU().getValor());
 					avgAUsers = avgAUsers + gossipList.get(b).getNactivU().getValor();
-					System.out.println("Somando--peso" + gossipList.get(b).getNactivU().getPeso());
+//					System.out.println("Somando--peso" + gossipList.get(b).getNactivU().getPeso());
 					pesoAUsers  = pesoAUsers  + gossipList.get(b).getNactivU().getPeso();
 
 					avgData = avgData +  gossipList.get(b).getAvgData().getValor();
@@ -482,7 +482,7 @@ public class Gossip implements Runnable {
 				}
 
 				if(changeGossipID == true ){
-					System.out.println( "Change gossip 2");
+//					System.out.println( "Change gossip 2");
 					//actualiza valor gossipRound
 					//gossipRound = gossipList.get(b).getRoundId() + 1;
 
@@ -513,16 +513,16 @@ public class Gossip implements Runnable {
 
 
 				//TODO
-
-				System.out.println("New avgFiles"+ gossip.getAvgfiles().getValor());
-				System.out.println("New pesoFiles" +gossip.getAvgfiles().getPeso());
-
-				System.out.println("New Users-" + gossip.getNusers().getValor());
-				System.out.println("New Users-" + gossip.getNusers().getPeso());
-
-
-				System.out.println("New avgNodes-" + gossip.getNnode().getValor());
-				System.out.println("New pesoNodes-" + gossip.getNnode().getPeso());
+//
+//				System.out.println("New avgFiles" + gossip.getAvgfiles().getValor());
+//				System.out.println("New pesoFiles" +gossip.getAvgfiles().getPeso());
+//
+//				System.out.println("New Users-" + gossip.getNusers().getValor());
+//				System.out.println("New Users-" + gossip.getNusers().getPeso());
+//
+//
+//				System.out.println("New avgNodes-" + gossip.getNnode().getValor());
+//				System.out.println("New pesoNodes-" + gossip.getNnode().getPeso());
 
 				gossipList.clear();
 				lock.unlock();
@@ -544,15 +544,15 @@ public class Gossip implements Runnable {
 				SendOne(dto);
 
 				Thread.sleep(ITERACTIME);
-				System.out.println( "2º - for end");
+//				System.out.println( "2º - for end");
 			}
 
 			if(changeGossipID == true){
 
 				//usada estimativa anterior
-
-				System.out.println( "Change gossip 2");
-				System.out.println( "Estimativa usar anterior - " + estimativa);
+//
+//				System.out.println( "Change gossip 2");
+//				System.out.println( "Estimativa usar anterior - " + estimativa);
 
 				//setAvg(( getAvg() / getPesoN() ) + 20);
 				changeGossipID = false;
@@ -581,7 +581,7 @@ public class Gossip implements Runnable {
 			stats= stats + ("-------Time::"+calendar.get(Calendar.HOUR)+"h:"+calendar.get(Calendar.MINUTE)+"m \n");
 
 			float nNodes = 1/((gossip.getNnode().getValor()) / gossip.getNnode().getPeso());
-			System.out.println( "Estimativa n nodes - " +nNodes);
+//			System.out.println( "Estimativa n nodes - " +nNodes);
 			NNodes = nNodes;
 
 			stats= stats + ("Number of node -: " + nNodes + "\n");
@@ -589,12 +589,12 @@ public class Gossip implements Runnable {
 			//stats.concat("Estimativa n nodes - " + nNodes);
 
 			estimativa = (( gossip.getNusers().getValor()) / gossip.getNusers().getPeso())*nNodes;
-			System.out.println( "Estimativa Sum - users - " + (estimativa));
+//			System.out.println( "Estimativa Sum - users - " + (estimativa));
 			Nusers = estimativa;
 			stats= stats +("Number users - " + (estimativa)+ "\n");
 
 			estimativa = ( gossip.getAvgfiles().getValor()) / gossip.getAvgfiles().getPeso() ;
-			System.out.println( "Estimativa media avg-files - " + estimativa);
+//			System.out.println( "Estimativa media avg-files - " + estimativa);
 			AVGNFiles = estimativa;
 			stats= stats + ("Estimativa media avg-files - " + AVGNFiles+ "\n");
 
@@ -602,7 +602,7 @@ public class Gossip implements Runnable {
 			if((gossip.getNactivU().getValor()==0) || (gossip.getNactivU().getPeso()==0)){
 				estimativa=0;	
 
-				System.out.println( "Estimativa active users - " + estimativa);
+//				System.out.println( "Estimativa active users - " + estimativa);
 				//NActiveUsers=1/estimativa;
 
 				stats= stats +("Estimativa active users - " + estimativa +"\n");
@@ -610,38 +610,39 @@ public class Gossip implements Runnable {
 
 			}else{
 				estimativa = (gossip.getNactivU().getValor())/ gossip.getNactivU().getPeso() ;
-				System.out.println( "Estimativa active users - " + 1/estimativa);
+//				System.out.println( "Estimativa active users - " + 1/estimativa);
 				NActiveUsers=1/estimativa;
 				stats= stats +("Estimativa active users - " + NActiveUsers +"\n");
 			}
 
 			estimativa = (gossip.getAvgData().getValor()) / gossip.getAvgData().getPeso() ;
-			System.out.println( "Estimativa avg Data - " + estimativa);
+//			System.out.println( "Estimativa avg Data - " + estimativa);
 			AVGNFiles = estimativa;
 			stats= stats + ("Estimativa avg-DATA - " + AVGNFiles+ "MB \n");
 
 
-			try{
-
-				File file = new File("/tmp/test/Stats");
-
-
-				if(file.exists()){	
-
-					if(file.delete()){
-						System.out.println(file.getName() + " is deleted!");
-					}else{
-						System.out.println("Delete operation is failed.");
-					}}
-			}catch(Exception e){
-
-				e.printStackTrace();
-			}
-
+//			try{
+//
+//				File file = new File("/tmp/test/Stats");
+//
+//
+//				if(file.exists()){	
+//
+//					if(file.delete()){
+////						System.out.println(file.getName() + " is deleted!");
+//					}else{
+////						System.out.println("Delete operation is failed.");
+//					}}
+//			}catch(Exception e){
+//
+//				e.printStackTrace();
+//			}
+//			
+			p2pKad.getFuse().removeStats();
 			p2pKad.getFuse().getRoot().add(new MemoryFile("Stats",stats));
 
 
-			System.out.println( "1º - for end");
+//			System.out.println( "1º - for end");
 
 			lock.lock();
 			gossipList.clear();
@@ -677,11 +678,11 @@ public class Gossip implements Runnable {
 
 				lock.lock();
 				gossipList.add((GossipDTO) object);
-				System.out.println("Recebi um estou atrazado/ no sou o mais alto");
+			//	System.out.println("Recebi um estou atrazado/ no sou o mais alto");
 				lock.unlock();
 				continue;
 			}
-			System.out.println("got:"+ object);
+//			System.out.println("got:"+ object);
 		}
 	}
 

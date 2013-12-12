@@ -29,7 +29,7 @@ public class Kademlia {
 	
 //	private static final Number160 ID = new Number160(1);
 	
-	private static final String HOST = "planetlab-1.tagus.ist.utl.pt";
+	private static final String HOST = "localhost";
 	
 	private static final int CONTENT_MAX_SIZE = 50;
 	
@@ -108,21 +108,21 @@ public class Kademlia {
 					GossipDTO dto = (GossipDTO) request;
 
 					
-					System.out.println("I'm "+ myId + " and I just got the message From nodeID " + dto.getNodeId());
+//					System.out.println("I'm "+ myId + " and I just got the message From nodeID " + dto.getNodeId());
 					
 					if (dto.getNodeId() == myId){
 						//TODO dava jeito...........
-						System.out.println("1");
+//						System.out.println("1");
 						return "receive from myshelf dont count";
 					}
 
 					
 					if((gossip.gossipStart == false)){
-						System.out.println("3");
+						//System.out.println("3");
 						
 						if(	dto.getStarterId() > myId)
 						{
-							System.out.println("3");
+						//	System.out.println("3");
 						//TODO devia ter sido eu a começar
 							return "STOP";
 						}
@@ -142,7 +142,7 @@ public class Kademlia {
 					gossip.lock.lock();
 					gossip.gossipList.add(dto);
 					gossip.lock.unlock();
-					System.out.println("I'm "+ myId + " and I just got the message From nodeID " + dto.getNodeId());
+//					System.out.println("I'm "+ myId + " and I just got the message From nodeID " + dto.getNodeId());
 					return "--AKC--";
 				}
 
@@ -162,10 +162,10 @@ public class Kademlia {
 		
 		InetAddress address = Inet4Address.getByName(HOST);
 
-		FutureDiscover futureDiscover = me.discover().setInetAddress( address ).setPorts( 9101 ).start();
+		FutureDiscover futureDiscover = me.discover().setInetAddress( address ).setPorts( PORT ).start();
 		futureDiscover.awaitUninterruptibly();
 		
-		FutureBootstrap futureBootstrap = me.bootstrap().setInetAddress( address ).setPorts( 9101 ).start();
+		FutureBootstrap futureBootstrap = me.bootstrap().setInetAddress( address ).setPorts( PORT ).start();
 		futureBootstrap.awaitUninterruptibly();
 	}
 	
