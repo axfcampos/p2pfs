@@ -13,8 +13,8 @@ public class FuseKademliaFileDto implements Serializable {
 	private String content;
 	
 	public FuseKademliaFileDto() {
-		this.partNumber = 0;
-		this.totalNumberParts = 0;
+		this.partNumber = 1;
+		this.totalNumberParts = 1;
 		this.content = "";
 	}
 
