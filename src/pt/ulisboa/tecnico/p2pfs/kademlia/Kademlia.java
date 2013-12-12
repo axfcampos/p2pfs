@@ -29,13 +29,6 @@ public class Kademlia {
 	
 	private static final Number160 ID = new Number160(1);
 	
-	private static final String Boot1 ="planetlab-1.tagus.ist.utl.pt";
-	private static final String Boot2 ="planetlab-2.tagus.ist.utl.pt";
-	private static final String Boot3 ="planetlab-1.iscte.pt";
-	private static final String Boot4 ="planetlab-2.iscte.pt";
-	private static final String Boot5 ="planetlab-3.iscte.pt";
-	
-	
 	private static final String HOST = "localhost";
 	
 	private static final int CONTENT_MAX_SIZE = 50;
@@ -174,20 +167,6 @@ public class Kademlia {
 		
 		FutureBootstrap futureBootstrap = me.bootstrap().setInetAddress( address ).setPorts( 9101 ).start();
 		futureBootstrap.awaitUninterruptibly();
-		
-		
-		
-		address = Inet4Address.getByName(Boot1);
-		me.bootstrap().setInetAddress(address).start();
-		address = Inet4Address.getByName(Boot2);
-		me.bootstrap().setInetAddress(address).start();
-		address = Inet4Address.getByName(Boot3);
-		me.bootstrap().setInetAddress(address).start();
-		address = Inet4Address.getByName(Boot4);
-		me.bootstrap().setInetAddress(address).start();
-		address = Inet4Address.getByName(Boot5);
-				
-		
 	}
 	
 	public void getMetadata() throws IOException, ClassNotFoundException{
