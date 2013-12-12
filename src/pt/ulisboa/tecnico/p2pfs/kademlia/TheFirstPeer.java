@@ -31,34 +31,34 @@ public final class TheFirstPeer {
     /**
 * Empty constructor.
 */
-    private TheFirstPeer() {
-    }
-
-    /**
-* Create 3 peers and start the example.
-*
-* @param args
-* Empty
-* @throws Exception .
-*/
-    public static void main(final String[] args) throws Exception {
-        exmpleIndirectReplication();
-    }
-
-    /**
-* Example of indirect replication with put. We store data in the DHT, then peers join that are closer to this data.
-* The indirect replication moves the content to the close peers.
-     * @throws ClassNotFoundException 
-*
-* @throws IOException .
-* @throws InterruptedException .
-*/
-    private static void exmpleIndirectReplication() throws IOException, InterruptedException, ClassNotFoundException {
-        final int port1 = 9101;
-        final int nr1 = 1;
-        
-        new PeerMaker(new Number160(nr1)).setPorts(port1).setEnableIndirectReplication(true)
-        		.setEnableTracker(true).makeAndListen();
-        
-    }
+//    private TheFirstPeer() {
+//    }
+//
+//    /**
+//* Create 3 peers and start the example.
+//*
+//* @param args
+//* Empty
+//* @throws Exception .
+//*/
+//    public static void main(final String[] args) throws Exception {
+//        exmpleIndirectReplication();
+//    }
+//
+//    /**
+//* Example of indirect replication with put. We store data in the DHT, then peers join that are closer to this data.
+//* The indirect replication moves the content to the close peers.
+//     * @throws ClassNotFoundException 
+//*
+//* @throws IOException .
+//* @throws InterruptedException .
+//*/
+//    private static void exmpleIndirectReplication() throws IOException, InterruptedException, ClassNotFoundException {
+//        final int port1 = 9101;
+//        final int nr1 = 1;
+//        
+//        new PeerMaker(new Number160(nr1)).setPorts(port1).setEnableIndirectReplication(true)
+//        		.setEnableTracker(true).makeAndListen();
+//        
+//    }
 }

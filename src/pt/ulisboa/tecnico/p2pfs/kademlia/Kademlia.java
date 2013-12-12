@@ -27,9 +27,9 @@ public class Kademlia {
 	
 	private static final int PORT = 9102;
 	
-	private static final Number160 ID = new Number160(1);
+//	private static final Number160 ID = new Number160(1);
 	
-	private static final String HOST = "localhost";
+	private static final String HOST = "planetlab-1.tagus.ist.utl.pt";
 	
 	private static final int CONTENT_MAX_SIZE = 50;
 	
@@ -161,7 +161,7 @@ public class Kademlia {
 		
 		
 		InetAddress address = Inet4Address.getByName(HOST);
-		
+
 		FutureDiscover futureDiscover = me.discover().setInetAddress( address ).setPorts( 9101 ).start();
 		futureDiscover.awaitUninterruptibly();
 		
