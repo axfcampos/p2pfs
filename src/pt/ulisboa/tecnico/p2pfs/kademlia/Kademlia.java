@@ -120,7 +120,7 @@ public class Kademlia {
 					if((gossip.gossipStart == false)){
 						System.out.println("3");
 						
-						if(	dto.getNodeId() > myId)
+						if(	dto.getStarterId() > myId)
 						{
 							System.out.println("3");
 						//TODO devia ter sido eu a começar
@@ -129,7 +129,7 @@ public class Kademlia {
 						
 						gossip.gossipStart = true;
 						//gossipRound = dto.getRoundId();
-						gossip.starterId = dto.getNodeId();
+						gossip.starterId = dto.getStarterId();
 					}
 					
 //					if(dto.getNodeId() > getPeerID() && dto.getRoundId() == gossipRound ){
