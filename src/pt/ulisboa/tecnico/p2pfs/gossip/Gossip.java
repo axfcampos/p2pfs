@@ -45,7 +45,7 @@ public class Gossip implements Runnable {
 	private static final int NITERACOES = 6;
 	private static final int ITERACTIME = 10000;
 
-	private static final int ROUNDTIME = 2; // MINUTOS
+	private static final int ROUNDTIME = 5; // MINUTOS
 
 	public float um = 1;
 
@@ -180,7 +180,8 @@ public class Gossip implements Runnable {
 			NData = (float) statts.getNumMBFiles();
 
 			System.out.println("myStorageMemory.getNumMBFiles()="+NData);
-
+			mounted = p2pKad.isMounted();
+			
 			if(p2pKad.isMounted()){
 				actvUsers = 1;
 			}else{
@@ -191,7 +192,7 @@ public class Gossip implements Runnable {
 
 			// TODO 
 
-			gossip = new GossipDTO(getPeerID());
+			gossip = new GossipDTO(starterId,getPeerID());
 			gossip.getNusers().setValor(users);
 			gossip.getNusers().setPeso(um);
 
@@ -208,20 +209,20 @@ public class Gossip implements Runnable {
 			gossip.getNactivU().setValor(actvUsers);
 
 
-			if(gossip.getNactivU().getValor() == 0){
-				gossip.getNactivU().setPeso(0);
-			}else{
+//			if(gossip.getNactivU().getValor() == 0){
+//				gossip.getNactivU().setPeso(0);
+//			}else{
 				gossip.getNactivU().setPeso(1);
-			}
+//			}
 
 			starterId = getPeerID();
 
 			long waitTime = (getPeerID());
 
-			if(waitTime  < 0) waitTime *= -1;	
-			System.out.println("::" + waitTime);
-			waitTime = waitTime/10000000;
-			waitTime = waitTime/100000000;
+//			if(waitTime  < 0) waitTime *= -1;	
+//			System.out.println("::" + waitTime);
+//			waitTime = waitTime/10000000;
+			waitTime = (waitTime*4)* 1000;
 
 			System.out.println("::" + waitTime);			
 			System.out.println( "I will wait "+ waitTime);
@@ -235,7 +236,7 @@ public class Gossip implements Runnable {
 
 				if(gossipStart){
 					System.out.println("receive a DTO i will start- valor zero");
-					iniciator=false;
+					iniciator = false;
 					//para os couts
 					gossip.getNnode().setValor(0);
 					gossip.getNactivU().setValor(0);
@@ -249,7 +250,7 @@ public class Gossip implements Runnable {
 				System.out.println( "2º - for begin");
 
 				lock.lock();				
-				GossipDTO dto = new GossipDTO(getPeerID());
+				GossipDTO dto = new GossipDTO(starterId,getPeerID());
 				//TODO
 
 				dto.setNnode(gossip.getNnode());
@@ -282,7 +283,7 @@ public class Gossip implements Runnable {
 
 				for (b = 0; b < gossipList.size(); b++){
 
-					System.out.println("B-"+ b + "---" + gossipList.get(b).getNodeId());
+					System.out.println("b="+b+"::StarterId received =" + gossipList.get(b).getStarterId()+"From "+  gossipList.get(b).getNodeId());
 
 					//					if (gossipList.get(b).getRoundId() > gossipRound){
 					//						System.out.println( "inside firts if");
@@ -290,19 +291,22 @@ public class Gossip implements Runnable {
 					//						break ;
 					//					}
 					//
-					//					//Não conto com contagens anteriores
-					//					if (gossipList.get(b).getRoundId() < gossipRound){
-					//						System.out.println( "inside second if");
-					//						continue;
-					//					}
+					//Não conto com contagens anteriores
+					if ((gossipList.get(b).getStarterId() > starterId)){
+						System.out.println( "Peer id superior:" + gossipList.get(b).getStarterId()+ ">" + starterId);
 
-					System.out.println("IF---"+ gossipList.get(b).getNodeId() + "---" +starterId);
-					if(gossipList.get(b).getNodeId() < starterId){
+						continue;
+					}
+
+					System.out.println("IF "+ gossipList.get(b).getStarterId() + "<<" +starterId);
+					if(gossipList.get(b).getStarterId() < starterId){
 						//TODO conflito de iniciaçção
+
 
 						System.out.println("Conflito continua apenas o menor id");
 						GossipDTO n = gossipList.get(b);
 
+						starterId = n.getStarterId();
 						System.out.println("interc"+ n.getIterc()+ "---"+ c);
 						int iteracoes= n.getIterc();
 
@@ -310,8 +314,8 @@ public class Gossip implements Runnable {
 						gossipList.add(n);
 						//Faz get dos valores de novo.
 
-						System.out.println("-----"+( Math.pow(2,iteracoes)));
-						System.out.println("---"+users);
+						System.out.println("//"+( Math.pow(2,iteracoes)));
+						System.out.println("users"+users);
 						System.out.println("files"+files);
 
 						gossip.getNusers().setValor((float) (users/( Math.pow(2,iteracoes))));
@@ -342,7 +346,7 @@ public class Gossip implements Runnable {
 
 
 
-						dto = new GossipDTO(getPeerID());
+						dto = new GossipDTO(starterId,getPeerID());
 
 						dto.setNnode(gossip.getNnode());
 						dto.setNusers(gossip.getNusers());
@@ -359,7 +363,7 @@ public class Gossip implements Runnable {
 						pesoFiles = n.getAvgfiles().getPeso() + gossip.getAvgfiles().getPeso();
 
 
-						System.out.println("SUM "+n.getNusers().getValor()+"--"+gossip.getNusers().getValor());
+						System.out.println("SUM "+n.getNusers().getValor()+"--"+ gossip.getNusers().getValor());
 						System.out.println("SUM "+n.getNusers().getPeso()+"--"+gossip.getNusers().getPeso());
 
 						avgUser = n.getNusers().getValor() + gossip.getNusers().getValor();
@@ -380,7 +384,6 @@ public class Gossip implements Runnable {
 
 						System.out.println("Conflito result"+avgFiles+"--"+avgUser+"--"+avgNode);
 						System.out.println("Conflito result"+pesoFiles+"--"+pesoUsers+"--"+pesoNode);
-						starterId = n.getNodeId();
 
 						break;
 
@@ -393,69 +396,70 @@ public class Gossip implements Runnable {
 					System.out.println("-c-"+ c + "cNode"+ gossipList.get(b).getIterc() );
 
 
-					//							if(c > gossipList.get(b).getIterc()){
-					//								
-					//								System.out.println("if----111111111111111");
-					//								
-					//								dif = c - gossipList.get(b).getIterc();
-					//							
-					//								System.out.println("dif"+ dif);
-					//								
-					//								avgFiles = (float) (avgFiles + (gossipList.get(b).getAvgfiles().getValor()/Math.pow(2,dif)));
-					//								pesoFiles  = (float) (pesoFiles  + (gossipList.get(b).getAvgfiles().getPeso()/Math.pow(2,dif)));
-					//													
-					//								avgUser = (float) (avgUser + (gossipList.get(b).getNusers().getValor()/Math.pow(2,dif)));
-					//								pesoUsers  = (float) (pesoUsers  + (gossipList.get(b).getNusers().getPeso()/Math.pow(2,dif)));
-					//
-					//								
-					//								avgNode = (float) (avgNode + (gossipList.get(b).getNnode().getValor()/Math.pow(2,dif)));
-					//								pesoNode  = (float) (pesoNode  + (gossipList.get(b).getNnode().getPeso()/Math.pow(2,dif)));
-					//							
-					//								continue;
-					//								
-					//							}
-					//								
-					//							if(c < gossipList.get(b).getIterc()){
-					//								System.out.println("if----222222222222");
-					//								dif = gossipList.get(b).getIterc()- c;
-					//							
-					//								System.out.println("dif"+ dif);
-					//							
-					//								System.out.println("A"+gossipList.get(b).getAvgfiles().getValor()+ "---" +Math.pow(2,dif));
-					//								System.out.println("A"+gossipList.get(b).getAvgfiles().getPeso()+ "---" +Math.pow(2,dif));
-					//								
-					//								System.out.println("A"+gossipList.get(b).getAvgfiles().getValor()*  Math.pow(2,dif));
-					//								System.out.println("A"+gossipList.get(b).getAvgfiles().getPeso() * Math.pow(2,dif));
-					//								
-					//								avgFiles = (float) 	   (avgFiles + (gossipList.get(b).getAvgfiles().getValor() * Math.pow(2,dif)));
-					//								pesoFiles  = (float) (pesoFiles  + (gossipList.get(b).getAvgfiles().getPeso()  * Math.pow(2,dif)));
-					//								
-					//								System.out.println("avgFile"+avgFiles);
-					//								System.out.println("avgFile"+pesoFiles);
-					//								
-					//								
-					//								avgUser = (float) (avgUser + (gossipList.get(b).getNusers().getValor()*Math.pow(2,dif)));
-					//								pesoUsers  = (float) (pesoUsers  + (gossipList.get(b).getNusers().getPeso()*Math.pow(2,dif)));
-					//
-					//								avgNode = (float) (avgNode + (gossipList.get(b).getNnode().getValor()*Math.pow(2,dif)));
-					//								pesoNode  = (float) (pesoNode  + (gossipList.get(b).getNnode().getPeso()*Math.pow(2,dif)));
-					//														
-					//								continue;
-					//							}	
+//					if(c > gossipList.get(b).getIterc()){
+//
+//						System.out.println("if----111111111111111");
+//
+//						dif = c - gossipList.get(b).getIterc();
+//
+//						System.out.println("dif"+ dif);
+//
+//						avgFiles = (float) (avgFiles + (gossipList.get(b).getAvgfiles().getValor()/Math.pow(2,dif)));
+//						pesoFiles  = (float) (pesoFiles  + (gossipList.get(b).getAvgfiles().getPeso()/Math.pow(2,dif)));
+//
+//						avgUser = (float) (avgUser + (gossipList.get(b).getNusers().getValor()/Math.pow(2,dif)));
+//						pesoUsers  = (float) (pesoUsers  + (gossipList.get(b).getNusers().getPeso()/Math.pow(2,dif)));
+//
+//
+//						avgNode = (float) (avgNode + (gossipList.get(b).getNnode().getValor()/Math.pow(2,dif)));
+//						pesoNode  = (float) (pesoNode  + (gossipList.get(b).getNnode().getPeso()/Math.pow(2,dif)));
+//
+//						continue;
+//
+//					}
+//
+//					if(c < gossipList.get(b).getIterc()){
+//						System.out.println("if----222222222222");
+//						dif = gossipList.get(b).getIterc()- c;
+//
+//						System.out.println("dif"+ dif);
+//
+//						System.out.println("A"+gossipList.get(b).getAvgfiles().getValor()+ "---" +Math.pow(2,dif));
+//						System.out.println("A"+gossipList.get(b).getAvgfiles().getPeso()+ "---" +Math.pow(2,dif));
+//
+//						System.out.println("A"+gossipList.get(b).getAvgfiles().getValor()*  Math.pow(2,dif));
+//						System.out.println("A"+gossipList.get(b).getAvgfiles().getPeso() * Math.pow(2,dif));
+//
+//						avgFiles = (float) 	   (avgFiles + (gossipList.get(b).getAvgfiles().getValor() * Math.pow(2,dif)));
+//						pesoFiles  = (float) (pesoFiles  + (gossipList.get(b).getAvgfiles().getPeso()  * Math.pow(2,dif)));
+//
+//						System.out.println("avgFile"+avgFiles);
+//						System.out.println("avgFile"+pesoFiles);
+//
+//
+//						avgUser = (float) (avgUser + (gossipList.get(b).getNusers().getValor()*Math.pow(2,dif)));
+//						pesoUsers  = (float) (pesoUsers  + (gossipList.get(b).getNusers().getPeso()*Math.pow(2,dif)));
+//
+//						avgNode = (float) (avgNode + (gossipList.get(b).getNnode().getValor()*Math.pow(2,dif)));
+//						pesoNode  = (float) (pesoNode  + (gossipList.get(b).getNnode().getPeso()*Math.pow(2,dif)));
+//
+//						continue;
+//					}	
+					
 
 
 					//TODO
 
 					System.out.println( "2º - for begin");
 					//faz calculos e guarda novos valores  
-					System.out.println("Somando--avg" + gossipList.get(b).getAvgfiles().getValor());
+					System.out.println("Somando--avgFiles" + gossipList.get(b).getAvgfiles().getValor());
 					avgFiles = avgFiles + gossipList.get(b).getAvgfiles().getValor();
-					System.out.println("Somando--peso" + gossipList.get(b).getAvgfiles().getPeso());
+					System.out.println("Somando--pesoFiles" + gossipList.get(b).getAvgfiles().getPeso());
 					pesoFiles  = pesoFiles  + gossipList.get(b).getAvgfiles().getPeso();
 
-					System.out.println("Somando--avg" + gossipList.get(b).getNusers().getValor());
+					System.out.println("Somando--Users" + gossipList.get(b).getNusers().getValor());
 					avgUser = avgUser + gossipList.get(b).getNusers().getValor();
-					System.out.println("Somando--peso" + gossipList.get(b).getNusers().getPeso());
+					System.out.println("Somando--Users peso" + gossipList.get(b).getNusers().getPeso());
 					pesoUsers  = pesoUsers  + gossipList.get(b).getNusers().getPeso();
 
 
@@ -510,22 +514,22 @@ public class Gossip implements Runnable {
 
 				//TODO
 
-				System.out.println("New avg"+ gossip.getAvgfiles().getValor());
-				System.out.println("New peso" +gossip.getAvgfiles().getPeso());
+				System.out.println("New avgFiles"+ gossip.getAvgfiles().getValor());
+				System.out.println("New pesoFiles" +gossip.getAvgfiles().getPeso());
 
-				System.out.println("New avg-" + gossip.getNusers().getValor());
-				System.out.println("New peso-" + gossip.getNusers().getPeso());
+				System.out.println("New Users-" + gossip.getNusers().getValor());
+				System.out.println("New Users-" + gossip.getNusers().getPeso());
 
 
-				System.out.println("New avg-" + gossip.getNnode().getValor());
-				System.out.println("New peso-" + gossip.getNnode().getPeso());
+				System.out.println("New avgNodes-" + gossip.getNnode().getValor());
+				System.out.println("New pesoNodes-" + gossip.getNnode().getPeso());
 
 				gossipList.clear();
 				lock.unlock();
 
 				//Cria novo DTO para enviar de novo 
 
-				dto = new GossipDTO(getPeerID());
+				dto = new  GossipDTO(starterId,getPeerID());
 				//TODO
 
 				dto.setAvgfiles(gossip.getAvgfiles());
@@ -570,9 +574,9 @@ public class Gossip implements Runnable {
 
 
 
-			
+
 			calendar = Calendar.getInstance();
-			
+
 			String stats = "-----------Stats---------- \n";
 			stats= stats + ("-------Time::"+calendar.get(Calendar.HOUR)+"h:"+calendar.get(Calendar.MINUTE)+"m \n");
 
