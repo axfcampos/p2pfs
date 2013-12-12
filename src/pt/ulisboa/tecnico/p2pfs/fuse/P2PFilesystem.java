@@ -58,6 +58,11 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		return dir;
 		
 	}
+	
+	public MemoryDirectory getRoot(){
+		
+		return this.rootDirectory;
+	}
 
 	@Override
 	public int access(final String path, final int access)
