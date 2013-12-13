@@ -29,9 +29,10 @@ public class Kademlia {
 	
 //	private static final Number160 ID = new Number160(1);
 	
-	private static final String HOST = "localhost";
+	private static final String HOST = "planetlab-1.tagus.ist.utl.pt";
+//	private static final String HOST = "localhost";
 	
-	private static final int CONTENT_MAX_SIZE = 50;
+	private static final int CONTENT_MAX_SIZE = 999999999;
 	
 	String username;
 	long myId;
@@ -120,12 +121,7 @@ public class Kademlia {
 					if((gossip.gossipStart == false)){
 						//System.out.println("3");
 						
-						if(	dto.getStarterId() > myId)
-						{
-						//	System.out.println("3");
-						//TODO devia ter sido eu a começar
-							return "STOP";
-						}
+						
 						
 						gossip.gossipStart = true;
 						//gossipRound = dto.getRoundId();
@@ -162,8 +158,8 @@ public class Kademlia {
 		
 		InetAddress address = Inet4Address.getByName(HOST);
 
-		FutureDiscover futureDiscover = me.discover().setInetAddress( address ).setPorts( PORT ).start();
-		futureDiscover.awaitUninterruptibly();
+//		FutureDiscover futureDiscover = me.discover().setInetAddress( address ).setPorts( PORT ).start();
+//		futureDiscover.awaitUninterruptibly();
 		
 		FutureBootstrap futureBootstrap = me.bootstrap().setInetAddress( address ).setPorts( PORT ).start();
 		futureBootstrap.awaitUninterruptibly();

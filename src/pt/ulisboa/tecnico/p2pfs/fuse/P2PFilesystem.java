@@ -477,6 +477,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			}
 		}
 		P2PFilesystem p2pfs;
+//		id = Long.parseLong(args[3]);
 		//main so com id
 		if(args.length == 0){
 			p2pfs = new P2PFilesystem(id);
@@ -497,7 +498,7 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		if(args.length == 3){
 			p2pfs = new P2PFilesystem(id);
 			//nao se faz mount
-			p2pfs.put_get_shell_loop(); //Pa fazer puts e gets a vontade
+//			p2pfs.put_get_shell_loop(); //Pa fazer puts e gets a vontade
 
 		}
 
@@ -576,7 +577,9 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 					if((input.split(" "))[0].equals("get") && (input.split(" ")).length == 2){
 
 						//faz get
-						System.out.println(this.kademlia.get(input.split(" ")[1]).toString());
+						FuseKademliaFileDto dto = this.kademlia.get(input.split(" ")[1]);
+						if(dto == null){ System.out.println("Object not found!");}else{
+						System.out.println(dto.toString());}
 					}else{
 						if((input.split(" "))[0].equals("rm") && (input.split(" ")).length == 2){
 
@@ -648,12 +651,13 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 
 	private void test2() throws IOException,ClassNotFoundException, InterruptedException{
 
+		System.out.println("Comecei a o teste");
 
 		FuseKademliaFileDto fkDTO= new FuseKademliaFileDto(1, 1 ,"Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......" +
 				"Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......" +
 				"Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......" +
 				"Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......" +
-				"Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......");
+"Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......Isto é o conteudo do ficheiro......");
 		
 		Writer writer = null;
 		///////////	Date date 
@@ -670,66 +674,67 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			Date s = calendar.getTime();
 //			System.out.println("Time"+ s);
 //25 Puts
+			System.out.println("-");
 			kademlia.store("file1", fkDTO);
 			kademlia.store("file2", fkDTO);
 			kademlia.store("file3", fkDTO);
-			kademlia.store("file4", fkDTO);
-			kademlia.store("file5", fkDTO);
-			
-			kademlia.store("file6", fkDTO);
-			kademlia.store("file7", fkDTO);
-			kademlia.store("file8", fkDTO);
-			kademlia.store("file9", fkDTO);
-			kademlia.store("file10", fkDTO);
-			
-			kademlia.store("file11", fkDTO);
-			kademlia.store("file12", fkDTO);
-			kademlia.store("file13", fkDTO);
-			kademlia.store("file14", fkDTO);
-			kademlia.store("file15", fkDTO);
-			
-			kademlia.store("file1", fkDTO);
-			kademlia.store("file2", fkDTO);
-			kademlia.store("file3", fkDTO);
-			kademlia.store("file4", fkDTO);
-			kademlia.store("file5", fkDTO);
-			
-			kademlia.store("file6", fkDTO);
-			kademlia.store("file7", fkDTO);
-			kademlia.store("file8", fkDTO);
-			kademlia.store("file9", fkDTO);
-			kademlia.store("file10", fkDTO);
+//			kademlia.store("file4", fkDTO);
+//			kademlia.store("file5", fkDTO);
+//			
+//			kademlia.store("file6", fkDTO);
+//			kademlia.store("file7", fkDTO);
+//			kademlia.store("file8", fkDTO);
+//			kademlia.store("file9", fkDTO);
+//			kademlia.store("file10", fkDTO);
+//			
+//			kademlia.store("file11", fkDTO);
+//			kademlia.store("file12", fkDTO);
+//			kademlia.store("file13", fkDTO);
+//			kademlia.store("file14", fkDTO);
+//			kademlia.store("file15", fkDTO);
+//			
+//			kademlia.store("file16", fkDTO);
+//			kademlia.store("file17", fkDTO);
+//			kademlia.store("file18", fkDTO);
+//			kademlia.store("file19", fkDTO);
+//			kademlia.store("file20", fkDTO);
+//			
+//			kademlia.store("file6", fkDTO);
+//			kademlia.store("file7", fkDTO);
+//			kademlia.store("file8", fkDTO);
+//			kademlia.store("file9", fkDTO);
+//			kademlia.store("file10", fkDTO);
 
 //25 GETS			
 			kademlia.get("file1");
 			kademlia.get("file2");
 			kademlia.get("file3");
-			kademlia.get("file4");
-			kademlia.get("file5");
-			
-			kademlia.get("file6");
-			kademlia.get("file7");
-			kademlia.get("file8");
-			kademlia.get("file9");
-			kademlia.get("file10");
-
-			kademlia.get("file11");
-			kademlia.get("file12");
-			kademlia.get("file13");
-			kademlia.get("file14");
-			kademlia.get("file15");
-			
-			kademlia.get("file1");
-			kademlia.get("file2");
-			kademlia.get("file3");
-			kademlia.get("file4");
-			kademlia.get("file5");
-			
-			kademlia.get("file6");
-			kademlia.get("file7");
-			kademlia.get("file8");
-			kademlia.get("file9");
-			kademlia.get("file10");
+//			kademlia.get("file4");
+//			kademlia.get("file5");
+//			
+//			kademlia.get("file6");
+//			kademlia.get("file7");
+//			kademlia.get("file8");
+//			kademlia.get("file9");
+//			kademlia.get("file10");
+//
+//			kademlia.get("file11");
+//			kademlia.get("file12");
+//			kademlia.get("file13");
+//			kademlia.get("file14");
+//			kademlia.get("file15");
+//			
+//			kademlia.get("file1");
+//			kademlia.get("file2");
+//			kademlia.get("file3");
+//			kademlia.get("file4");
+//			kademlia.get("file5");
+//			
+//			kademlia.get("file6");
+//			kademlia.get("file7");
+//			kademlia.get("file8");
+//			kademlia.get("file9");
+//			kademlia.get("file10");
 
 			calendar = Calendar.getInstance();
 			Date a = calendar.getTime();
@@ -738,12 +743,13 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			date = calendar.getTime();
 			
 			
-			difFromStart = s.getTime()- start.getTime() ;
+			difFromStart = a.getTime()- start.getTime() ;
 			
-			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("results.txt", true)));
-//		    out.println("---------------------------------------");
-		    out.println(" Intervalo de tempo::" + dif1 + ":tempo para o inicio::" + difFromStart );
-		    out.close();
+//			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("/tmp/results.txt", true)));
+////		    out.println("---------------------------------------");
+//		    out.println(dif1 + " " + difFromStart );
+//		    out.close();
+			System.out.println(dif1 + " " + difFromStart);
 			
 			
 		//	writer = new BufferedWriter(new OutputStreamWriter(	new FileOutputStream("results.txt"), "utf-8"));
