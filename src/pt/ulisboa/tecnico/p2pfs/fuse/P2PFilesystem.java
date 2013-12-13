@@ -659,12 +659,14 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 		///////////	Date date 
 		Date date = null ;
 		long dif1 = 0;
+		long difFromStart = 0;
 		
-		
+		Calendar calendar = Calendar.getInstance();
+		Date start = calendar.getTime();
 
 		while(true){
 
-			Calendar calendar = Calendar.getInstance();
+			calendar = Calendar.getInstance();
 			Date s = calendar.getTime();
 //			System.out.println("Time"+ s);
 //25 Puts
@@ -736,9 +738,11 @@ public class P2PFilesystem extends FuseFilesystemAdapterAssumeImplemented {
 			date = calendar.getTime();
 			
 			
+			difFromStart = s.getTime()- start.getTime() ;
+			
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("results.txt", true)));
-		    out.println("---------------------------------------\n");
-		    out.println("Intervalo de tempo:: " + dif1 + ":::Data:::" + date + "\n");
+//		    out.println("---------------------------------------");
+		    out.println(" Intervalo de tempo::" + dif1 + ":tempo para o inicio::" + difFromStart );
 		    out.close();
 			
 			
